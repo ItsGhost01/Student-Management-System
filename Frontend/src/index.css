@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+
+/* :root {
+  --font-lato: "Lato", sans-serif;
+  --font-josefin: "Josefin Sans", sans-serif;
+  --color-primary: #7e33e0;
+  --color-primary-dark: #0d0e43;
+  --color-primary-light: #f6f5ff;
+  --color-secondary: #fb2e86;
+} */
+
+
+
+.track {
+  border: 1px solid #ef4444;
+  background-color: #fef2f2;
+}
