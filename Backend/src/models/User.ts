@@ -3,11 +3,7 @@ import sequelize from "../connections/database.js";
 
 const User = sequelize.define(
   "Users",
-  {
-      studentId: {
-      type: DataTypes.STRING,
-      unique: true,
-    },
+  {  
     firstName: {
       type: DataTypes.STRING,
       allowNull: false,
