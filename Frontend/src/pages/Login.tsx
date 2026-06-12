@@ -5,6 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
+import { Link } from "react-router";
 
 type FormValues = {
   email: string;
@@ -137,21 +138,26 @@ export default function Login() {
 
                 {/* Forgot Password */}
                 <div className="flex justify-end">
+                   <Link to="/forgotpassword">
                   <button
                     type="button"
                     className="text-sm font-medium text-primary hover:text-buttonSec hover:underline cursor-pointer "
                   >
                     Forgot Password?
                   </button>
+                  </Link>
+
                 </div>
 
                 {/* Sign In Button */}
+             
                 <button
                   type="submit"
                   className="w-full py-3 bg-primary hover:bg-buttonSec text-white font-semibold rounded-xl shadow-md transition duration-300 cursor-pointer"
                 >
                   Sign In
                 </button>
+                
               </form>
               <DevTool control={control} />
 
@@ -166,12 +172,14 @@ export default function Login() {
               <div className="text-center">
                 <p className="text-gray-600">
                   Don't have an account?{" "}
+                  <Link to="/signup">
                   <button
                     type="button"
                     className="font-semibold text-primary hover:text-primary cursor-pointer hover:underline"
                   >
                     Sign Up
                   </button>
+                  </Link>
                 </p>
               </div>
             </div>

@@ -4,6 +4,7 @@ import { DevTool } from "@hookform/devtools";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Eye, EyeClosed } from "lucide-react";
+import { Link } from "react-router";
 
 type FormValues = {
   firstName: string;
@@ -260,12 +261,14 @@ export default function Signup() {
               <div className="text-center">
                 <p className="text-gray-600">
                   Already have an account?{" "}
+                 <Link to="/login">
                   <button
                     type="button"
                     className="font-semibold text-primary hover:underline cursor-pointer"
                   >
                     Sign In
                   </button>
+                  </Link>
                 </p>
               </div>
 

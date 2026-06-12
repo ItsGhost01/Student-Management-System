@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
+import { Link } from "react-router";
 
 type FormValues = {
   email: string;
@@ -38,7 +39,7 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen bg-blue flex items-center justify-center p-4">
-      <div className="w-200 max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+      <div className="w-200 max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden backdrop-blur-2xl">
         <div className="grid md:grid-cols-2 items-center gap-1">
 
           {/* Left Side */}
@@ -205,13 +206,15 @@ export default function ResetPassword() {
 
               {/* Back to Login */}
               <p className="text-gray-600 mt-4 text-center">
-                Back to{" "}
+                Remember your password?{" "}
+                <Link to="/login">
                 <button
                   type="button"
                   className="text-primary font-semibold hover:underline cursor-pointer"
                 >
                   Login
                 </button>
+                </Link>
               </p>
 
             </div>
