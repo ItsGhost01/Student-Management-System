@@ -1,17 +1,20 @@
 import type { Request, Response } from "express";
 import User from "../models/User.js";
 import bcrypt from 'bcrypt';
-import { signupSchema } from "../../validation/auth.js";
+import { signupSchema, loginSchema} from "../../validation/auth.js";
 import jwt from "jsonwebtoken"
+import z from "zod";
 
 
 
 ////api for login
 export const login = async (req: Request, res: Response) => {
   try {
+    const validatedData = loginSchema.parse(req.body);
+
     const user = await User.findOne({
       where: {
-        email: req.body.email,
+        email: validatedData.email,
       },
     });
 
@@ -22,9 +25,10 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    const hashedPw = user.getDataValue("password");
 
-    const matched = await bcrypt.compare(req.body.password, hashedPw);
+    const hashedPw = user.getDataValue("password"); 
+
+    const matched = await bcrypt.compare(validatedData.password, hashedPw);
 
     if (!matched) {
       return res.status(401).json({
@@ -33,8 +37,8 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    const userInfo = user.toJSON();
-    delete userInfo.password;
+    const userInfo = user.toJSON(); // to convert sequelize model to js object
+    delete userInfo.password; // for not showing password in response
 
     const token = jwt.sign(
       {
@@ -65,45 +69,40 @@ export const login = async (req: Request, res: Response) => {
 };
 
 
-//api for signup
 export const signup = async (req: Request, res: Response) => {
+  const result = signupSchema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({
+      success: false,
+      errors: z.flattenError(result.error).fieldErrors,
+    });
+  }
+
   try {
-      console.log(req.body);
-    const validatedData = signupSchema.parse(req.body);
- 
-   let hashedPw = await bcrypt.hash(validatedData.password, 10);
+    const hashedPw = await bcrypt.hash(result.data.password, 10);
 
     await User.create({
-      firstName: validatedData.firstName,
-      lastName: validatedData.lastName,
-      email: validatedData.email,
+      firstName: result.data.firstName,
+      lastName: result.data.lastName,
+      email: result.data.email,
       password: hashedPw,
-      role:validatedData.role
+      role: result.data.role,
     });
 
-    res.status(201).json({ message: "User created successfully" });
+    return res.status(201).json({
+      success: true,
+      message: "User created successfully",
+    });
   } catch (err) {
+    console.error(err);
 
-    const result = signupSchema.safeParse(req.body);
-    if (!result.success) {
-  const errors: Record<string, string> = {};
-
-  result.error.issues.forEach((issue) => {
-    const field = issue.path[0] as string;
-
-    if (!errors[field]) {
-      errors[field] = issue.message;
-    }
-  });
-
-  return res.status(400).json({
-    success: false,
-    errors,
-  });
-}
- 
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
   }
-}
+};
 
 export const getUser = async (req: Request, res: Response) => {
   res.send("getuser")

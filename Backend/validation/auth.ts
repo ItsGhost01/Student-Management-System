@@ -29,3 +29,15 @@ export const signupSchema = z.object({
 
   role: z.enum(["staff", "admin"]).default("admin")
 });
+
+
+export const loginSchema = z.object({
+  email: z
+    .email("Invalid email address")
+    .trim()
+    .toLowerCase(),
+
+  password: z
+    .string()
+    .min(1, "Password is required")
+});

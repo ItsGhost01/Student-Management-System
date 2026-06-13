@@ -89,7 +89,7 @@ export default function Signup() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      First Name
+                      First Name <span className="text-error">*</span>
                     </label>
 
                     <input
@@ -114,7 +114,7 @@ export default function Signup() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Last Name
+                      Last Name <span className="text-error">*</span>
                     </label>
 
                     <input
@@ -141,7 +141,7 @@ export default function Signup() {
                 {/* Email */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
+                    Email <span className="text-error">*</span>
                   </label>
 
                   <input
@@ -167,7 +167,7 @@ export default function Signup() {
                 {/* Password */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Password
+                    Password <span className="text-error">*</span>
                   </label>
 
                   <div className="relative">
@@ -212,7 +212,7 @@ export default function Signup() {
                 {/* Role */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Role
+                    Role <span className="text-error">*</span>
                   </label>
 
                   <select

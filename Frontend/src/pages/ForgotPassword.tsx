@@ -86,7 +86,7 @@ export default function ResetPassword() {
                 {/* Email */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
+                    Email <span className="text-error">*</span>
                   </label>
 
                   <input
@@ -112,7 +112,7 @@ export default function ResetPassword() {
                 {/* New Password */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    New Password
+                    New Password <span className="text-error">*</span>
                   </label>
 
                   <div className="relative">
@@ -156,7 +156,7 @@ export default function ResetPassword() {
                 {/* Confirm Password */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Confirm Password
+                    Confirm Password <span className="text-error">*</span>
                   </label>
 
                   <div className="relative">
