@@ -5,7 +5,9 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate} from "react-router";
+import { useDispatch } from "react-redux";
+import { login } from "../redux/features/userSlice";
 
 type FormValues = {
   email: string;
@@ -16,30 +18,51 @@ export default function Login() {
   //to toggle eye for password
   const [showPassword, setShowPassword] = useState(false);
 
+const navigate = useNavigate();
+const dispatch = useDispatch();
+
   const form = useForm<FormValues>();
   const {
     register,
     control,
     handleSubmit,
-    reset,
+    // reset,
     formState: { errors },
   } = form;
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    try {
-      await axios.post("http://localhost:3000/api/login", data, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      reset();
-      toast.success("Login successfully");
-    } catch (error) {
-      console.error(error);
-      toast.success("Login Failed");
-    }
-  };
+const onSubmit: SubmitHandler<FormValues> = async (data) => {
+  try {
+    const res = await axios.post(
+      "http://localhost:3000/api/login",
+      {
+        email: data.email,
+        password: data.password,
+      }
+    );
 
+    toast.success("Login successful!");
+
+    localStorage.setItem("token", res.data.token);
+
+    dispatch(login(res.data.user));
+
+    navigate(
+      res.data.user.role === "admin"
+        ? "/Admin/Dashboard"
+        : "/dashboard"
+    );
+  } catch (err: any) {
+    if (err.response?.status === 401) {
+      toast.error("Invalid Credentials");
+    } else if (err.response?.status === 400) {
+      toast.error(err.response.data.message || "Validation Error");
+    } else {
+      toast.error("Something went wrong");
+    }
+
+    console.error(err);
+  }
+};
   return (
     <div className="min-h-screen bg-blue flex items-center justify-center p-4">
       <div className="w-200 max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden">
