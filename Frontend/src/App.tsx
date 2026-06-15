@@ -12,6 +12,13 @@ import Students from "./pages/Students";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import Courses from "./pages/Courses";
 import Settings from "./pages/Settings";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import type { RootState } from "./redux/store";
+import { login } from "./redux/features/userSlice";
+
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -37,6 +44,27 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
+ 
+   const dispatch = useDispatch();
+
+useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    axios
+      .get("http://localhost:3000/api/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        dispatch(login(res.data.user));
+      })
+      .catch((err) => {
+        console.log("failed to fetch user", err);
+      });
+  }, [dispatch]);
+
+
   return (
     <>
       <RouterProvider router={router} />

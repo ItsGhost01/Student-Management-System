@@ -7,7 +7,7 @@ import z from "zod";
 
 
 
-////api for login
+//api for login
 export const login = async (req: Request, res: Response) => {
   try {
     const validatedData = loginSchema.parse(req.body);
@@ -105,5 +105,8 @@ export const signup = async (req: Request, res: Response) => {
 };
 
 export const getUser = async (req: Request, res: Response) => {
-  res.send("getuser")
+ return res.status(200).json({
+    success: true,
+    user: req.user,
+  });
   }

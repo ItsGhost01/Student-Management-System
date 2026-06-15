@@ -108,6 +108,19 @@ export default function DashboardLayout() {
             <Settings size={18} />
             <span>Settings</span>
           </Link>
+
+
+            <Link
+            to="/admin/Users"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              location.pathname === "/admin/users"
+                ? "bg-blue-600 text-white"
+                : "hover:bg-slate-800"
+            }`}
+          >
+            <Users size={18} />
+            <span>Users</span>
+          </Link>
         </nav>
 
         {/* Logout */}
