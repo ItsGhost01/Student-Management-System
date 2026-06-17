@@ -4,7 +4,8 @@ import { DevTool } from "@hookform/devtools";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Eye, EyeClosed } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+
 
 type FormValues = {
   firstName: string;
@@ -16,6 +17,7 @@ type FormValues = {
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<FormValues>();
 
@@ -23,27 +25,55 @@ export default function Signup() {
     register,
     control,
     handleSubmit,
-    reset,
+    setError,
+    // reset,
     formState: { errors },
   } = form;
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    try {
-      await axios.post("http://localhost:3000/api/register", data);
+ const onSubmit: SubmitHandler<FormValues> = async (data) => {
+  try {
+    await axios.post("http://localhost:3000/api/signup", {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      password: data.password,
+      role: data.role,
+    });
 
-      reset();
-      toast.success("Account created successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to create account");
+    toast.success("Account created successfully");
+
+    navigate("/login");
+  } catch (err: any) {
+    const response = err.response
+
+    if (response?.status === 400 && response.data?.errors) {
+  const errors = response.data.errors;
+
+  Object.entries(errors).forEach(([field, messages]) => {
+    setError(field as any, {
+      type: "server",
+      message: (messages as string[])[0],
+    });
+  });
+
+  return;
+}
+    if (err.response?.status === 400) {
+      toast.error(err.response.data.message || "Validation Error");
+    } else if (err.response?.status === 409) {
+      toast.error("User already exists");
+    } else {
+      toast.error("Something went wrong");
     }
-  };
+
+    console.error(err);
+  }
+};
 
   return (
     <div className="min-h-screen bg-blue flex items-center justify-center p-4 ">
       <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden ">
         <div className="grid md:grid-cols-2 items-center">
-
           {/* Left Side */}
           <div className="hidden md:flex justify-center items-center p-6">
             <img
@@ -56,17 +86,10 @@ export default function Signup() {
           {/* Right Side */}
           <div className="flex items-center justify-center p-6 md:p-8 lg:p-12">
             <div className="w-full max-w-md">
-
               {/* Logo */}
               <div className="flex items-center justify-center gap-2 mb-6">
-                <img
-                  src="/Logo.svg"
-                  alt="Logo"
-                  className="w-8 h-8"
-                />
-                <span className="font-semibold text-lg">
-                  StudentHub
-                </span>
+                <img src="/Logo.svg" alt="Logo" className="w-8 h-8" />
+                <span className="font-semibold text-lg">StudentHub</span>
               </div>
 
               {/* Header */}
@@ -81,10 +104,7 @@ export default function Signup() {
               </div>
 
               {/* Form */}
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 {/* First Name + Last Name */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -176,8 +196,7 @@ export default function Signup() {
                         required: "Password is required",
                         minLength: {
                           value: 6,
-                          message:
-                            "Password must be at least 6 characters",
+                          message: "Password must be at least 6 characters",
                         },
                       })}
                       type={showPassword ? "text" : "password"}
@@ -251,9 +270,7 @@ export default function Signup() {
               {/* Divider */}
               <div className="my-6 flex items-center">
                 <div className="flex-1 border-t border-gray-200"></div>
-                <span className="px-4 text-sm text-gray-400">
-                  OR
-                </span>
+                <span className="px-4 text-sm text-gray-400">OR</span>
                 <div className="flex-1 border-t border-gray-200"></div>
               </div>
 
@@ -261,17 +278,16 @@ export default function Signup() {
               <div className="text-center">
                 <p className="text-gray-600">
                   Already have an account?{" "}
-                 <Link to="/login">
-                  <button
-                    type="button"
-                    className="font-semibold text-primary hover:underline cursor-pointer"
-                  >
-                    Sign In
-                  </button>
+                  <Link to="/login">
+                    <button
+                      type="button"
+                      className="font-semibold text-primary hover:underline cursor-pointer"
+                    >
+                      Sign In
+                    </button>
                   </Link>
                 </p>
               </div>
-
             </div>
           </div>
         </div>

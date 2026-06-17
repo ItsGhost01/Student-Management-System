@@ -1,11 +1,9 @@
 import type { Request, Response } from "express";
 import User from "../models/User.js";
-import bcrypt from 'bcrypt';
-import { signupSchema, loginSchema} from "../../validation/auth.js";
-import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt";
+import { signupSchema, loginSchema, forgetPassSchema } from "../../validation/auth.js";
+import jwt from "jsonwebtoken";
 import z from "zod";
-
-
 
 //api for login
 export const login = async (req: Request, res: Response) => {
@@ -25,8 +23,7 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-
-    const hashedPw = user.getDataValue("password"); 
+    const hashedPw = user.getDataValue("password");
 
     const matched = await bcrypt.compare(validatedData.password, hashedPw);
 
@@ -48,9 +45,8 @@ export const login = async (req: Request, res: Response) => {
       process.env.JWT_SECRET!,
       {
         expiresIn: "7d",
-      }
+      },
     );
-
 
     return res.status(200).json({
       success: true,
@@ -68,7 +64,6 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-
 export const signup = async (req: Request, res: Response) => {
   const result = signupSchema.safeParse(req.body);
 
@@ -80,6 +75,18 @@ export const signup = async (req: Request, res: Response) => {
   }
 
   try {
+    const existingUser = await User.findOne({
+      where: { email: result.data.email },
+    });
+
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: "User already exists",
+      });
+    }
+
+    //hash Password
     const hashedPw = await bcrypt.hash(result.data.password, 10);
 
     await User.create({
@@ -105,8 +112,48 @@ export const signup = async (req: Request, res: Response) => {
 };
 
 export const getUser = async (req: Request, res: Response) => {
- return res.status(200).json({
+  return res.status(200).json({
     success: true,
     user: req.user,
   });
+};
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  const validatedData = forgetPassSchema.safeParse(req.body);
+
+  if (!validatedData.success) {
+    return res.status(400).json({
+      success: false,
+      errors: z.flattenError(validatedData.error).fieldErrors,
+    });
   }
+
+  try {
+    const { email, password } = validatedData.data;
+
+    const user = await User.findOne({
+      where: { email },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await user.update({
+      password: hashedPassword,
+    });
+
+    return res.status(200).json({
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
+};

@@ -19,6 +19,7 @@ export default function ResetPassword() {
     register,
     handleSubmit,
     watch,
+    setError,
     reset,
     formState: { errors },
   } = useForm<FormValues>();
@@ -26,17 +27,36 @@ export default function ResetPassword() {
   const password = watch("password");
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    try {
-      await axios.post("http://localhost:3000/api/reset-password", data);
+  try {
+    await axios.post("http://localhost:3000/api/forgot-password", data);
 
-      reset();
-      toast.success("Password reset successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong");
-    }
-  };
+    reset();
+    toast.success("Password updated successfully");
+  } catch (err: any) {
+  const response = err.response;
 
+  // ✅ Zod / validation errors (400)
+  if (response?.status === 400 && response.data?.errors) {
+    const backendErrors = response.data.errors;
+
+    Object.entries(backendErrors).forEach(([field, messages]) => {
+      setError(field as any, {
+        type: "server",
+        message: (messages as string[])[0],
+      });
+    });
+
+    return;
+  }
+
+  if (response?.status === 404) {
+    toast.error("User not found");
+    return;
+  }
+
+  toast.error("Something went wrong");
+}
+  }
   return (
     <div className="min-h-screen bg-blue flex items-center justify-center p-4">
       <div className="w-200 max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden backdrop-blur-2xl">
@@ -120,8 +140,8 @@ export default function ResetPassword() {
                       {...register("password", {
                         required: "Password is required",
                         minLength: {
-                          value: 6,
-                          message: "Minimum 6 characters",
+                          value: 8,
+                          message: "Minimum 8 characters",
                         },
                       })}
                       type={showPassword ? "text" : "password"}

@@ -13,10 +13,16 @@ import DashboardLayout from "./components/layout/DashboardLayout";
 import Courses from "./pages/Courses";
 import Settings from "./pages/Settings";
 import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useEffect } from "react";
-import type { RootState } from "./redux/store";
+// import type { RootState } from "./redux/store";
 import { login } from "./redux/features/userSlice";
+import Users from "./pages/Users";
+import AdminRoute from "./components/layout/AdminRoute";
+import StaffRoute from "./components/layout/StaffRoute";
+import NotFound from "./pages/NotFound";
+import Forbidden from "./pages/Forbidden";
+
 
 
 const router = createBrowserRouter([
@@ -31,18 +37,53 @@ const router = createBrowserRouter([
     ],
   },
 
+   {
+    path: "/forbidden",
+    element: <Forbidden />,
+  },
+
+
+  // ADMIN
   {
-    path: "/Admin",
-    element: <DashboardLayout />,
+    path: "/admin",
+    element: <AdminRoute />,
     children: [
-      { path: "Dashboard", element: <Dashboard /> },
-      { path: "students", element: <Students /> },
-       { path: "courses", element: <Courses /> },
-       { path: "settings", element: <Settings /> },
+      {
+        element: <DashboardLayout />,
+        children: [
+          { path: "dashboard", element: <Dashboard /> },
+          { path: "students", element: <Students /> },
+          { path: "courses", element: <Courses /> },
+          { path: "settings", element: <Settings /> },
+          { path: "users", element: <Users /> },
+        ],
+      },
     ],
   },
-]);
 
+  // STAFF
+  {
+    path: "/staff",
+    element: <StaffRoute />,
+    children: [
+      {
+        element: <DashboardLayout />,
+        children: [
+          { path: "dashboard", element: <Dashboard /> },
+          { path: "students", element: <Students /> },
+          { path: "courses", element: <Courses /> },
+          { path: "settings", element: <Settings /> },
+        ],
+      },
+    ],
+  },
+
+
+  {
+    path: "*",
+    element: <NotFound />,
+  },
+]);
 export default function App() {
  
    const dispatch = useDispatch();

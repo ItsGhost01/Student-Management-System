@@ -14,15 +14,19 @@ import { useDispatch } from "react-redux";
 import { logout } from "../../redux/features/userSlice";
 import ConfirmDialog from "../../pages/ConfirmDialog";
 
-
 export default function DashboardLayout() {
-
   const [open, setOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+
+
+  // FIX: works for both /admin/dashboard and /staff/dashboard
+  const isActive = (path: string) =>
+    location.pathname.split("/").pop() === path;
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
@@ -47,13 +51,11 @@ export default function DashboardLayout() {
       >
         {/* Top */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800">
-          {/* Logo + Name */}
           <div className="flex items-center gap-2">
             <img src="/Logo.svg" className="w-8 h-8" />
             <span className="font-semibold text-lg text-white">StudentHub</span>
           </div>
 
-          {/* Close button */}
           <button className="lg:hidden" onClick={() => setSidebarOpen(false)}>
             <X size={20} />
           </button>
@@ -62,9 +64,9 @@ export default function DashboardLayout() {
         {/* Nav */}
         <nav className="flex-1 p-4 flex flex-col gap-2">
           <Link
-            to="/Admin/Dashboard"
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-              location.pathname === "/Admin/Dashboard"
+            to="dashboard"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
+              isActive("dashboard")
                 ? "bg-blue-600 text-white"
                 : "hover:bg-slate-800"
             }`}
@@ -74,9 +76,9 @@ export default function DashboardLayout() {
           </Link>
 
           <Link
-            to="/admin/students"
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-              location.pathname === "/admin/students"
+            to="students"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
+              isActive("students")
                 ? "bg-blue-600 text-white"
                 : "hover:bg-slate-800"
             }`}
@@ -86,9 +88,9 @@ export default function DashboardLayout() {
           </Link>
 
           <Link
-            to="/admin/courses"
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-              location.pathname === "/admin/courses"
+            to="courses"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
+              isActive("courses")
                 ? "bg-blue-600 text-white"
                 : "hover:bg-slate-800"
             }`}
@@ -98,9 +100,9 @@ export default function DashboardLayout() {
           </Link>
 
           <Link
-            to="/admin/settings"
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-              location.pathname === "/admin/settings"
+            to="settings"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
+              isActive("settings")
                 ? "bg-blue-600 text-white"
                 : "hover:bg-slate-800"
             }`}
@@ -109,11 +111,10 @@ export default function DashboardLayout() {
             <span>Settings</span>
           </Link>
 
-
-            <Link
-            to="/admin/Users"
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-              location.pathname === "/admin/users"
+          <Link
+            to="users"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
+              isActive("users")
                 ? "bg-blue-600 text-white"
                 : "hover:bg-slate-800"
             }`}
@@ -127,13 +128,12 @@ export default function DashboardLayout() {
         <div className="p-4 border-t border-slate-800">
           <button
             className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-slate-800"
-            onClick={() => {
-              setOpen(true);
-            }}
+            onClick={() => setOpen(true)}
           >
             <LogOut size={18} />
             <span>Logout</span>
           </button>
+
           <ConfirmDialog
             open={open}
             title="Logout"
@@ -152,12 +152,10 @@ export default function DashboardLayout() {
       <div className="flex-1 flex flex-col">
         <Header setSidebarOpen={setSidebarOpen} />
 
-        {/* Page Content */}
         <main className="flex-1 p-6">
           <Outlet />
         </main>
 
-        {/* Footer */}
         <Footer />
       </div>
     </div>

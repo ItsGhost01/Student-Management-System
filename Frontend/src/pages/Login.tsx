@@ -5,9 +5,11 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
-import { Link, useNavigate} from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
 import { login } from "../redux/features/userSlice";
+import { useSelector } from "react-redux";
+import type { RootState } from "../redux/store";
 
 type FormValues = {
   email: string;
@@ -15,11 +17,12 @@ type FormValues = {
 };
 
 export default function Login() {
+  const user = useSelector((state: RootState) => state.user.value);
   //to toggle eye for password
   const [showPassword, setShowPassword] = useState(false);
 
-const navigate = useNavigate();
-const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const form = useForm<FormValues>();
   const {
@@ -30,39 +33,41 @@ const dispatch = useDispatch();
     formState: { errors },
   } = form;
 
-const onSubmit: SubmitHandler<FormValues> = async (data) => {
-  try {
-    const res = await axios.post(
-      "http://localhost:3000/api/login",
-      {
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    try {
+      const res = await axios.post("http://localhost:3000/api/login", {
         email: data.email,
         password: data.password,
-      }
-    );
+      });
 
-    toast.success("Login successful!");
+      toast.success("Login successful!");
 
-    localStorage.setItem("token", res.data.token);
+      localStorage.setItem("token", res.data.token);
 
-    dispatch(login(res.data.user));
+      dispatch(login(res.data.user));
 
-    navigate(
-      res.data.user.role === "admin"
-        ? "/Admin/Dashboard"
-        : "/dashboard"
-    );
-  } catch (err: any) {
-    if (err.response?.status === 401) {
-      toast.error("Invalid Credentials");
-    } else if (err.response?.status === 400) {
-      toast.error(err.response.data.message || "Validation Error");
-    } else {
-      toast.error("Something went wrong");
+       let path = "/login";
+
+    if (user?.role === "admin") {
+      path = "/admin/dashboard";
+    } else if (user?.role === "staff") {
+      path = "/staff/dashboard";
     }
 
-    console.error(err);
-  }
-};
+    navigate(path);
+      
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        toast.error("Invalid Credentials");
+      } else if (err.response?.status === 400) {
+        toast.error(err.response.data.message || "Validation Error");
+      } else {
+        toast.error("Something went wrong");
+      }
+
+      console.error(err);
+    }
+  };
   return (
     <div className="min-h-screen bg-blue flex items-center justify-center p-4">
       <div className="w-200 max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden">
@@ -161,26 +166,24 @@ const onSubmit: SubmitHandler<FormValues> = async (data) => {
 
                 {/* Forgot Password */}
                 <div className="flex justify-end">
-                   <Link to="/forgotpassword">
-                  <button
-                    type="button"
-                    className="text-sm font-medium text-primary hover:text-buttonSec hover:underline cursor-pointer "
-                  >
-                    Forgot Password?
-                  </button>
+                  <Link to="/forgotpassword">
+                    <button
+                      type="button"
+                      className="text-sm font-medium text-primary hover:text-buttonSec hover:underline cursor-pointer "
+                    >
+                      Forgot Password?
+                    </button>
                   </Link>
-
                 </div>
 
                 {/* Sign In Button */}
-             
+
                 <button
                   type="submit"
                   className="w-full py-3 bg-primary hover:bg-buttonSec text-white font-semibold rounded-xl shadow-md transition duration-300 cursor-pointer"
                 >
                   Sign In
                 </button>
-                
               </form>
               <DevTool control={control} />
 
@@ -196,12 +199,12 @@ const onSubmit: SubmitHandler<FormValues> = async (data) => {
                 <p className="text-gray-600">
                   Don't have an account?{" "}
                   <Link to="/signup">
-                  <button
-                    type="button"
-                    className="font-semibold text-primary hover:text-primary cursor-pointer hover:underline"
-                  >
-                    Sign Up
-                  </button>
+                    <button
+                      type="button"
+                      className="font-semibold text-primary hover:text-primary cursor-pointer hover:underline"
+                    >
+                      Sign Up
+                    </button>
                   </Link>
                 </p>
               </div>
