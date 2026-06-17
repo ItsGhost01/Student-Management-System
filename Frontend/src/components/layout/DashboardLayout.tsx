@@ -10,19 +10,19 @@ import {
 } from "lucide-react";
 import Header from "./Header";
 import Footer from "./Footer";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/features/userSlice";
 import ConfirmDialog from "../../pages/ConfirmDialog";
+import type { RootState } from "../../redux/store";
 
 export default function DashboardLayout() {
+  const reduxUser = useSelector((state: RootState) => state.user.value);
   const [open, setOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-
 
   // FIX: works for both /admin/dashboard and /staff/dashboard
   const isActive = (path: string) =>
@@ -50,11 +50,13 @@ export default function DashboardLayout() {
         `}
       >
         {/* Top */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800">
+        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800 z-50">
+         <Link to="dashboard"> 
           <div className="flex items-center gap-2">
             <img src="/Logo.svg" className="w-8 h-8" />
             <span className="font-semibold text-lg text-white">StudentHub</span>
           </div>
+          </Link>
 
           <button className="lg:hidden" onClick={() => setSidebarOpen(false)}>
             <X size={20} />
@@ -111,23 +113,25 @@ export default function DashboardLayout() {
             <span>Settings</span>
           </Link>
 
-          <Link
-            to="users"
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
-              isActive("users")
-                ? "bg-blue-600 text-white"
-                : "hover:bg-slate-800"
-            }`}
-          >
-            <Users size={18} />
-            <span>Users</span>
-          </Link>
+          {reduxUser?.role === "Admin" && (
+            <Link
+              to="users"
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
+                isActive("users")
+                  ? "bg-blue-600 text-white"
+                  : "hover:bg-slate-800"
+              }`}
+            >
+              <Users size={18} />
+              <span>Users</span>
+            </Link>
+          )}
         </nav>
 
         {/* Logout */}
         <div className="p-4 border-t border-slate-800">
           <button
-            className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-slate-800"
+            className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-slate-800 cursor-pointer"
             onClick={() => setOpen(true)}
           >
             <LogOut size={18} />
@@ -140,9 +144,11 @@ export default function DashboardLayout() {
             description="Do you really want to logout?"
             onCancel={() => setOpen(false)}
             onConfirm={() => {
+              
               dispatch(logout());
+              localStorage.removeItem("token");
               setOpen(false);
-              navigate("/login");
+              navigate("/");
             }}
           />
         </div>

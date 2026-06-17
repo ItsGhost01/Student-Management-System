@@ -34,40 +34,38 @@ export default function Login() {
   } = form;
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    try {
-      const res = await axios.post("http://localhost:3000/api/login", {
-        email: data.email,
-        password: data.password,
-      });
+  try {
+    const res = await axios.post("http://localhost:3000/api/login", {
+      email: data.email,
+      password: data.password,
+    });
 
-      toast.success("Login successful!");
+    toast.success("Login successful!");
 
-      localStorage.setItem("token", res.data.token);
+    localStorage.setItem("token", res.data.token);
 
-      dispatch(login(res.data.user));
+    dispatch(login(res.data.user));
 
-       let path = "/login";
+    const role = res.data.user.role;
 
-    if (user?.role === "admin") {
-      path = "/admin/dashboard";
-    } else if (user?.role === "staff") {
-      path = "/staff/dashboard";
+    if (role === "admin") {
+      navigate("/admin/dashboard");
+    } else if (role === "staff") {
+      navigate("/staff/dashboard");
+    } else {
+      navigate("/login");
     }
 
-    navigate(path);
-      
-    } catch (err: any) {
-      if (err.response?.status === 401) {
-        toast.error("Invalid Credentials");
-      } else if (err.response?.status === 400) {
-        toast.error(err.response.data.message || "Validation Error");
-      } else {
-        toast.error("Something went wrong");
-      }
-
-      console.error(err);
+  } catch (err: any) {
+    if (err.response?.status === 401) {
+      toast.error("Invalid Credentials");
+    } else if (err.response?.status === 400) {
+      toast.error(err.response.data.message || "Validation Error");
+    } else {
+      toast.error("Something went wrong");
     }
-  };
+  }
+};
   return (
     <div className="min-h-screen bg-blue flex items-center justify-center p-4">
       <div className="w-200 max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden">
