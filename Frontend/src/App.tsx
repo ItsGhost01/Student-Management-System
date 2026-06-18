@@ -16,7 +16,7 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 // import type { RootState } from "./redux/store";
-import { login, logout } from "./redux/features/userSlice";
+import { login, setLoading} from "./redux/features/userSlice";
 import Users from "./pages/Users";
 import AdminRoute from "./components/layout/AdminRoute";
 import StaffRoute from "./components/layout/StaffRoute";
@@ -25,7 +25,9 @@ import Forbidden from "./pages/Forbidden";
 
 
 
+
 const router = createBrowserRouter([
+  
   {
     path: "",
     element: <RootLayout />,
@@ -86,16 +88,11 @@ const router = createBrowserRouter([
   },
 ]);
 export default function App() {
- 
+   
    const dispatch = useDispatch();
 
 useEffect(() => {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    dispatch(logout());
-    return;
-  }
+   const token = localStorage.getItem("token");
 
   axios
     .get("http://localhost:3000/api/me", {
@@ -106,9 +103,10 @@ useEffect(() => {
     .then((res) => {
       dispatch(login(res.data.user));
     })
-    .catch(() => {
-      localStorage.removeItem("token");
-      dispatch(logout());
+    .catch((err) => {
+     console.log("failed to fetch user", err)
+    }).finally(() => {
+      dispatch(setLoading(false));
     });
 }, [dispatch]);
 

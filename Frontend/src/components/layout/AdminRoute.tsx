@@ -3,7 +3,15 @@ import { Navigate, Outlet } from "react-router";
 import type { RootState } from "../../redux/store";
 
 export default function AdminRoute() {
-  const user = useSelector((state: RootState) => state.user.value);
+
+  const { value: user, loading } = useSelector(
+  (state: RootState) => state.user
+);
+
+
+  if (loading) {
+  return <div>Loading...</div>;
+}
 
   // not logged in
   if (!user) {
@@ -11,9 +19,10 @@ export default function AdminRoute() {
   }
 
   // wrong role
-  if (user.role !== "admin") {
+  if (user?.role !== "admin") {
     return <Navigate to="/forbidden" replace />;
   }
+  console.log("AdminRoute user:", user);
 
   return <Outlet />;
 }

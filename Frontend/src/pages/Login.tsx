@@ -8,8 +8,8 @@ import { Eye, EyeClosed } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
 import { login } from "../redux/features/userSlice";
-import { useSelector } from "react-redux";
-import type { RootState } from "../redux/store";
+// import { useSelector } from "react-redux";
+// import type { RootState } from "../redux/store";
 
 type FormValues = {
   email: string;
@@ -17,7 +17,7 @@ type FormValues = {
 };
 
 export default function Login() {
-  const user = useSelector((state: RootState) => state.user.value);
+  // const user = useSelector((state: RootState) => state.user.value);
   //to toggle eye for password
   const [showPassword, setShowPassword] = useState(false);
 

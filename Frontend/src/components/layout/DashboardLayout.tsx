@@ -17,6 +17,7 @@ import type { RootState } from "../../redux/store";
 
 export default function DashboardLayout() {
   const reduxUser = useSelector((state: RootState) => state.user.value);
+
   const [open, setOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -113,7 +114,7 @@ export default function DashboardLayout() {
             <span>Settings</span>
           </Link>
 
-          {reduxUser?.role === "Admin" && (
+          {reduxUser?.role === "admin" && (
             <Link
               to="users"
               className={`flex items-center gap-3 px-4 py-3 rounded-lg ${

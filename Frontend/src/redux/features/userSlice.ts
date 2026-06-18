@@ -10,10 +10,12 @@ export interface User {
 
 export interface UserState {
   value: User | null;
+  loading: boolean;
 }
 
 const initialState: UserState = {
   value: null,
+    loading: true
 };
 
 export const userSlice = createSlice({
@@ -29,9 +31,14 @@ export const userSlice = createSlice({
       state.value = null;
       localStorage.removeItem("token");
     },
+
+     setLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
+
   },
 });
 
-export const { login, logout } = userSlice.actions;
+export const { login, logout, setLoading } = userSlice.actions;
 
 export default userSlice.reducer;
