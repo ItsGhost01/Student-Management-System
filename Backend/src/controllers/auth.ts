@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
-import { signupSchema, loginSchema, forgetPassSchema } from "../../validation/auth.js";
+import { signupSchema, loginSchema, forgetPassSchema, changePasswordSchema } from "../../validation/auth.js";
 import jwt from "jsonwebtoken";
 import z from "zod";
 
@@ -155,5 +155,43 @@ export const forgotPassword = async (req: Request, res: Response) => {
     return res.status(500).json({
       message: "Server error",
     });
+  }
+};
+
+
+export const changePassword = async (req: Request, res: Response) => {
+  const validated = changePasswordSchema.safeParse(req.body);
+
+  if (!validated.success) {
+    return res.status(400).json({
+      success: false,
+      errors: z.flattenError(validated.error).fieldErrors,
+    });
+  }
+
+  try {
+    const { currentPassword, newPassword } = validated.data;
+
+    const user = await User.findByPk(req.user.id) as any;
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Current password is incorrect",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await user.update({ password: hashedPassword });
+
+    return res.status(200).json({
+      message: "Password updated successfully",
+    });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
