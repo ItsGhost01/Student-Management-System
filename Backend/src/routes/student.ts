@@ -1,16 +1,14 @@
 import express from "express";
-import { updateProfile } from "../controllers/user.js";
+import { addStudent } from "../controllers/student.js";
 import { checkAuthentication } from "../middlewares/CheckAuthentication.js";
 import multer from "multer";
 import path from "path";
 
-
 const router = express.Router();
-
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/users");
+    cb(null, "uploads/students");
   },
   filename: function (req, file, cb) {
     const extension = path.extname(file.originalname);
@@ -23,6 +21,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.put("/profile", checkAuthentication, upload.single("image"), updateProfile);
+router.post("/add/student", checkAuthentication, upload.single("image"), addStudent);
 
 export default router;

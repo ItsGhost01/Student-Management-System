@@ -5,10 +5,10 @@ export default function Users() {
 
       <div>
         <h1 className="text-3xl font-bold text-gray-800">
-          Dashboard Overview
+         Users
         </h1>
         <p className="text-gray-500 mt-1">
-          Welcome to the Student Management System
+          Manage Users
         </p>
       </div>
     </div>

@@ -16,7 +16,7 @@ export default function Dashboard() {
       </div>
 
       {/* Welcome Banner */}
-      <div className="relative bg-primary rounded-3xl p-6 shadow-xl overflow-hidden">
+      <div className="relative bg-primary rounded-3xl p-6 shadow-xl overflow-hidden ">
         {/* Decorative Shapes */}
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-white rounded-full"></div>
         <div className="absolute -bottom-10 -left-10 w-20 h-20 bg-white rounded-full"></div>

@@ -35,11 +35,20 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
       <div className="flex items-center gap-3 ml-auto">
         
         {/* Avatar */}
-        <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm">
-          {reduxUser?.firstName?.[0] ?? "U"}
-          {reduxUser?.lastName?.[0] ?? ""}
-        </div>
-
+        <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm overflow-hidden">
+  {reduxUser?.image ? (
+    <img
+      src={`http://localhost:3000/${reduxUser.image}`}
+      alt="Profile"
+      className="w-full h-full object-cover rounded-full"
+    />
+  ) : (
+    <>
+      {reduxUser?.firstName?.[0] ?? "U"}
+      {reduxUser?.lastName?.[0] ?? ""}
+    </>
+  )}
+</div>
         {/* Name (hidden on mobile) */}
         <span className="text-sm font-bold hidden md:block">
           {reduxUser?.firstName} {reduxUser?.lastName}
