@@ -37,6 +37,14 @@ const Students = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    courseId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "courses",
+        key: "id",
+      },
+     },
    
   },
   {

@@ -4,12 +4,6 @@ import sequelize from "../connections/database.js";
 const Courses = sequelize.define(
   "Courses",
   {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-
     courseId: {
       type: DataTypes.STRING,
       unique: true,
@@ -30,13 +24,13 @@ const Courses = sequelize.define(
       allowNull: false,
     },
 
-    level: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     createdBy: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: "users",
+        key: "id",
+      },
     },
   },
   {
