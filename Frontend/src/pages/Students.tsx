@@ -1,6 +1,26 @@
-import { Plus } from "lucide-react";
+// import { Plus } from "lucide-react";
+import { useState } from "react";
 
 export default function Students() {
+
+    // const [open, setOpen] = useState(false);
+  
+    // type FormValues = {
+    //   title: string;
+    //   description: string;
+    //   duration: string;
+    // };
+
+
+  //   const onSubmit: SubmitHandler<FormValues> = async (data) => {
+
+  
+  //   setOpen(false);
+  // }
+  
+  
+  }
+
   return (
     <div className="flex items-start justify-between">
       <div>
