@@ -22,7 +22,9 @@ import {
 
 
 export default function Courses() {
+ const [courses, setCourses] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
 
   type FormValues = {
     title: string;
@@ -49,6 +51,8 @@ export default function Courses() {
       });
 
       toast.success("Courses added successfully");
+      fetchCourses()
+        
       setOpen(false);
     } catch (error) {
       console.log(error);
@@ -56,18 +60,34 @@ export default function Courses() {
     }
   };
 
-  useEffect(() => {
-      const token = localStorage.getItem("token");
-    axios.get("http://localhost:3000/api/courses",
 
+  const fetchCourses = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await axios.get(
+      "http://localhost:3000/api/courses",
       {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-    ); 
-    
-  }, []);
+      }
+    );
+    console.log(response.data)
+   setCourses(response.data.data);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
+   
+
+
+useEffect(() => {
+fetchCourses()
+}, []);
+
 
   return (
     <>
@@ -80,7 +100,7 @@ export default function Courses() {
             </h1>
 
             <span className="px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded-lg">
-              100 Total
+             {courses.length} Total
             </span>
           </div>
 
@@ -128,11 +148,14 @@ export default function Courses() {
           </div>
         </div>
       </div>
-
+      
+{loading ? (
+  <p>Loading...</p>
+) : (
       <TableContainer className="mt-3 " component={Paper}>
         <Table>
           <TableHead>
-            <TableRow>
+            <TableRow >
               <TableCell>CourseId</TableCell>
               <TableCell>Course</TableCell>
               <TableCell>Description</TableCell>
@@ -143,13 +166,13 @@ export default function Courses() {
           </TableHead>
 
           <TableBody>
-            {/* {courses.map((course) => ( */}
-            <TableRow>
-              <TableCell>id</TableCell>
-              <TableCell>hh</TableCell>
-              <TableCell>hhh</TableCell>
-              <TableCell>hh</TableCell>
-              <TableCell>id</TableCell>
+          {courses.map((course) => (
+            <TableRow key={course.id}>
+              <TableCell>{course.courseId}</TableCell>
+              <TableCell>{course.title}</TableCell>
+              <TableCell>{course.description}</TableCell>
+              <TableCell>{course.duration}</TableCell>
+              <TableCell> {course.creator?.firstName} {course.creator?.lastName}</TableCell>
 
               <TableCell align="center">
                 <IconButton color="primary">
@@ -161,11 +184,11 @@ export default function Courses() {
                 </IconButton>
               </TableCell>
             </TableRow>
-            {/* ))} */}
+           ))}
           </TableBody>
         </Table>
       </TableContainer>
-
+)}
       {/* Modal */}
       {open && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">

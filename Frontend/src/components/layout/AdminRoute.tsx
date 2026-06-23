@@ -22,7 +22,7 @@ export default function AdminRoute() {
   if (user?.role !== "admin") {
     return <Navigate to="/forbidden" replace />;
   }
-  console.log("AdminRoute user:", user);
+
 
   return <Outlet />;
 }

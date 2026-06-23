@@ -37,7 +37,7 @@ export const getCourse = async (
   res: Response
 ) => {
   try {
-    let limit = 0;
+    let limit = 10;
     let page = 1;
     let sort: [string, "ASC" | "DESC"] = [
       "createdAt",
