@@ -14,8 +14,10 @@ Courses.belongsTo(User, {
 
 Students.belongsTo(Courses, {
   foreignKey: "courseId",
+  as: "course",
 });
 
 Courses.hasMany(Students, {
   foreignKey: "courseId",
+  as: "students",
 });

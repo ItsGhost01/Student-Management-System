@@ -1,5 +1,5 @@
 import express from "express";
-import { addStudent } from "../controllers/student.js";
+import { addStudent, getStudent } from "../controllers/student.js";
 import { checkAuthentication } from "../middlewares/CheckAuthentication.js";
 import multer from "multer";
 import path from "path";
@@ -22,5 +22,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.post("/add/student", checkAuthentication, upload.single("image"), addStudent);
+router.get("/students", checkAuthentication, getStudent);
 
 export default router;
