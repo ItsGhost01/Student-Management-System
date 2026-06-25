@@ -2,7 +2,6 @@ import { Search } from "lucide-react";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 
-
 import {
   Table,
   TableBody,
@@ -15,61 +14,80 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
-
-
+import ConfirmDialog from "./ConfirmDialog";
+import { toast } from "react-toastify";
 
 export default function Users() {
-
   const [users, setUsers] = useState<any[]>([]);
-   const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   
+
   const fetchUsers = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await axios.get("http://localhost:3000/api/users", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data);
+      setUsers(response.data.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+    useEffect(() => {
+    fetchUsers();
+  }, []);
+
+
+const handleDelete = async () => {
   try {
     const token = localStorage.getItem("token");
 
-    const response = await axios.get(
-      "http://localhost:3000/api/users",
+    await axios.delete(
+      `http://localhost:3000/api/delete/${selectedUserId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
-    console.log(response.data)
-   setUsers(response.data.data);
+
+    setOpen(false);
+    //refresh user list after deleting
+    toast.success("user deleted Succesfully")
+    fetchUsers();
   } catch (error) {
+    toast.error("Failed to delete user")
     console.error(error);
-  } finally {
-    setLoading(false);
   }
 };
 
 
 
-useEffect(() => {
-fetchUsers();
-}, []);
-
-
   return (
     <div className="space-y-6">
+      <div>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            Users
+          </h1>
 
-    <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-              Users
-            </h1>
-
-            <span className="px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded-lg">
-              Total: {users.length} 
-            </span>
-          </div>
-
-          <p className="mt-2 text-sm md:text-base text-gray-500">
-            Manage Users
-          </p>
+          <span className="px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded-lg">
+            Total: {users.length}
+          </span>
         </div>
+
+        <p className="mt-2 text-sm md:text-base text-gray-500">Manage Users</p>
+      </div>
 
       {/* Search & Filter */}
       <div className="bg-white rounded-2xl shadow-sm p-4 mt-5">
@@ -106,47 +124,59 @@ fetchUsers();
           </div>
         </div>
       </div>
-{loading ? (
-  <p>Loading...</p>
-) : (
-  <TableContainer className="mt-3 " component={Paper}>
-        <Table>
-          <TableHead>
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <TableContainer className="mt-3 " component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>UserId</TableCell>
+                <TableCell>Full Name</TableCell>
+                <TableCell>Role</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell align="center">Actions</TableCell>
+              </TableRow>
+            </TableHead>
 
-            <TableRow >
-              <TableCell>UserId</TableCell>
-              <TableCell>Full Name</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>{user.id}</TableCell>
+                  <TableCell>
+                    {user.firstName} {user.lastName}
+                  </TableCell>
+                  <TableCell>{user.role}</TableCell>
+                  <TableCell>{user.email}</TableCell>
 
-          <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id} >
-              <TableCell>{user.id}</TableCell>
-              <TableCell>{user.firstName} {user.lastName}</TableCell>
-              <TableCell>{user.role}</TableCell>
-              <TableCell>{user.email}</TableCell>
-          
+                  <TableCell align="center">
+                    <IconButton
+                      color="error"
+                      onClick={() => {
+                        setSelectedUserId(user.id);
+                        setOpen(true);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
 
-              <TableCell align="center">
-               
-                <IconButton color="error">
-                  <DeleteIcon />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))} 
-          </TableBody>
-        </Table>
-      </TableContainer>
-)}
+    
+                  </TableCell>
+                </TableRow>
+              ))}
+
+              <ConfirmDialog
+        
+                      open={open}
+                      title="Delete Student"
+                      description="Are you sure you want to delete this student?"
+                      onConfirm={handleDelete}
+                      onCancel={() => setOpen(false)}
+                    />
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
     </div>
-
-    
-
-    
-  )
+  );
 }

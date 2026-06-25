@@ -70,3 +70,42 @@ export const getStudent = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+export const getStudentById = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const id = Number(req.params.id);
+
+    const student = await Student.findByPk(id, {
+      include: [
+        {
+          model: Courses,
+          as: "course",
+          attributes: ["id", "courseId", "title"],
+        },
+      ],
+    });
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: student,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch student",
+      error,
+    });
+  }
+};
+

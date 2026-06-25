@@ -1,5 +1,5 @@
 import express from "express";
-import { getUsers, updateProfile } from "../controllers/user.js";
+import { deleteUser, getUsers, updateProfile } from "../controllers/user.js";
 import { checkAuthentication } from "../middlewares/CheckAuthentication.js";
 import multer from "multer";
 import path from "path";
@@ -25,6 +25,7 @@ const upload = multer({ storage });
 
 router.put("/profile", checkAuthentication, upload.single("image"), updateProfile);
 router.get("/users", checkAuthentication, getUsers);
+router.delete("/delete/:id", checkAuthentication, deleteUser);
 
 
 export default router;
