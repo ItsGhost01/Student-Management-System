@@ -12,6 +12,7 @@ type ConfirmDialogProps = {
   title?: string;
   loading?: boolean;
   description?: string;
+  color?: "primary" | "secondary" | "error" | "success";
   onConfirm: () => void;
   onCancel: () => void;
 
@@ -24,6 +25,7 @@ export default function ConfirmDialog({
   loading = false,
   onConfirm,
   onCancel,
+  color
 }: ConfirmDialogProps) {
   return (
     <Dialog
@@ -48,7 +50,7 @@ export default function ConfirmDialog({
 
       <DialogActions>
         <Button onClick={onCancel}>Cancel</Button>
-        <Button color="error" variant="contained" onClick={onConfirm}
+        <Button color={color} variant="contained" onClick={onConfirm}
           disabled={loading}
         >
          {loading ? "Deleting..." : "Confirm"}

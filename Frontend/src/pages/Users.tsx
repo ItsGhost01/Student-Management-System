@@ -166,12 +166,12 @@ const handleDelete = async () => {
               ))}
 
               <ConfirmDialog
-        
                       open={open}
-                      title="Delete Student"
-                      description="Are you sure you want to delete this student?"
+                      title="Delete User"
+                      description="Are you sure you want to delete this user?"
                       onConfirm={handleDelete}
                       onCancel={() => setOpen(false)}
+                      color="error"
                     />
             </TableBody>
           </Table>

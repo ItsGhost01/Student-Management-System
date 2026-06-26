@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { login } from "../redux/features/userSlice";
 import { Eye, EyeClosed } from "lucide-react";
 import { useState } from "react";
+import ConfirmDialog from "./ConfirmDialog";
 
 type FormValues = {
   firstName: string;
@@ -26,6 +27,9 @@ export default function Settings() {
     new: false,
     confirm: false,
   });
+
+  const [openUpdateModal, setOpenUpdateModal] = useState(false);
+  const [openChangeModal, setOpenChangeModal] = useState(false);
 
   const reduxUser = useSelector((state: RootState) => state.user.value);
 
@@ -80,6 +84,7 @@ export default function Settings() {
       dispatch(login(response.data.user));
 
       toast.success("Profile Updated Successfully");
+      setOpenUpdateModal(false)
       console.log(response.data);
     } catch (error) {
       toast.error("Something went wrong");
@@ -107,9 +112,11 @@ export default function Settings() {
       );
 
       toast.success("Password updated successfully");
+       setOpenChangeModal(false);
       passwordForm.reset();
     } catch (error: any) {
       const Errors = error?.response?.data?.errors;
+      
 
       if (Errors) {
         Object.entries(Errors).forEach(([field, messages]: any) => {
@@ -120,6 +127,7 @@ export default function Settings() {
         });
 
         return;
+        
       }
 
       toast.error(error?.response?.data?.message || "Something went wrong");
@@ -140,7 +148,13 @@ export default function Settings() {
           <p className="font-bold text-2xl">Personal Information</p>
           <p className="font-medium mb-1">Update your profile information</p>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setOpenUpdateModal(true);
+            }}
+            className="space-y-6"
+          >
             {/* Profile Image */}
             <div className="flex items-center gap-6">
               <div className="w-24 h-24 rounded-full flex items-center justify-center overflow-hidden bg-primary">
@@ -246,13 +260,20 @@ export default function Settings() {
             <button
               type="submit"
               className="w-full bg-primary text-white py-3 rounded-lg hover:bg-buttonSec transition"
+              onClick={() => {
+                // setSelectedUserId(user.id);
+                setOpenUpdateModal(true);
+              }}
             >
               Update Profile
             </button>
           </form>
 
           <form
-            onSubmit={handlePasswordSubmit(onSubmitPassword)}
+               onSubmit={(e) => {
+              e.preventDefault();
+              setOpenChangeModal(true);
+            }}
             className="space-y-4 mt-10"
           >
             <p className="font-bold text-xl">Change Password</p>
@@ -314,7 +335,7 @@ export default function Settings() {
                       message: "Minimum 8 characters",
                     },
                   })}
-                   className={`w-full px-4 py-3 border rounded-xl transition focus:outline-none focus:ring-2 ${
+                  className={`w-full px-4 py-3 border rounded-xl transition focus:outline-none focus:ring-2 ${
                     passwordErrors.newPassword
                       ? "border-error focus:ring-error"
                       : "border-gray-300 focus:ring-primary"
@@ -399,11 +420,37 @@ export default function Settings() {
               )}
             </div>
 
-            <button className="w-full bg-red-600 text-white py-3 rounded-lg">
+            <button
+              className="w-full bg-red-600 text-white py-3 rounded-lg"
+              onClick={() => {
+                // setSelectedUserId(user.id);
+                setOpenChangeModal(true);
+              }}
+            >
               Update Password
             </button>
           </form>
         </div>
+
+        {/* For updated profile */}
+        <ConfirmDialog
+          open={openUpdateModal}
+          title="Update Profile"
+          description="Are you sure you want to update profile?"
+          color="primary"
+          onConfirm={() => handleSubmit(onSubmit)()}
+          onCancel={() => setOpenUpdateModal(false)}
+        />
+
+        {/* for change password */}
+        <ConfirmDialog
+          open={openChangeModal}
+          title="Change Password"
+          description="Are you sure you want to change Password?"
+          onConfirm={() => handlePasswordSubmit(onSubmitPassword)()}
+          onCancel={() => setOpenChangeModal(false)}
+          color="error"
+        />
       </div>
     </div>
   );

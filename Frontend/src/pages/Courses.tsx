@@ -5,7 +5,6 @@ import type { SubmitHandler } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 
@@ -19,12 +18,13 @@ import {
   Paper,
   IconButton,
 } from "@mui/material";
-
+import ConfirmDialog from "./ConfirmDialog";
 
 export default function Courses() {
- const [courses, setCourses] = useState<any[]>([]);
+  const [courses, setCourses] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
-    const [loading, setLoading] = useState(true);
+  const [openModal, setOpenModal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   type FormValues = {
     title: string;
@@ -51,8 +51,8 @@ export default function Courses() {
       });
 
       toast.success("Courses added successfully");
-      fetchCourses()
-        
+      fetchCourses();
+
       setOpen(false);
     } catch (error) {
       console.log(error);
@@ -60,34 +60,29 @@ export default function Courses() {
     }
   };
 
-
   const fetchCourses = async () => {
-  try {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    const response = await axios.get(
-      "http://localhost:3000/api/courses",
-      {
+      const response = await axios.get("http://localhost:3000/api/courses", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
-    );
-    console.log(response.data)
-   setCourses(response.data.data);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    setLoading(false);
-  }
-};
-   
+      });
+      console.log(response.data);
+      setCourses(response.data.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    fetchCourses();
+  }, []);
 
-useEffect(() => {
-fetchCourses()
-}, []);
-
+  const handleDelete = async () => {};
 
   return (
     <>
@@ -100,7 +95,7 @@ fetchCourses()
             </h1>
 
             <span className="px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded-lg">
-             {courses.length} Total
+              {courses.length} Total
             </span>
           </div>
 
@@ -148,47 +143,63 @@ fetchCourses()
           </div>
         </div>
       </div>
-      
-{loading ? (
-  <p>Loading...</p>
-) : (
-      <TableContainer className="mt-3 " component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow >
-              <TableCell>CourseId</TableCell>
-              <TableCell>Course</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>Duration</TableCell>
-              <TableCell>created by</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
 
-          <TableBody>
-          {courses.map((course) => (
-            <TableRow key={course.id}>
-              <TableCell>{course.courseId}</TableCell>
-              <TableCell>{course.title}</TableCell>
-              <TableCell>{course.description}</TableCell>
-              <TableCell>{course.duration}</TableCell>
-              <TableCell> {course.creator?.firstName} {course.creator?.lastName}</TableCell>
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <TableContainer className="mt-3 " component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>CourseId</TableCell>
+                <TableCell>Course</TableCell>
+                <TableCell>Description</TableCell>
+                <TableCell>Duration</TableCell>
+                <TableCell>created by</TableCell>
+                <TableCell align="center">Actions</TableCell>
+              </TableRow>
+            </TableHead>
 
-              <TableCell align="center">
-                <IconButton color="primary">
-                  <EditIcon />
-                </IconButton>
+            <TableBody>
+              {courses.map((course) => (
+                <TableRow key={course.id}>
+                  <TableCell>{course.courseId}</TableCell>
+                  <TableCell>{course.title}</TableCell>
+                  <TableCell>{course.description}</TableCell>
+                  <TableCell>{course.duration}</TableCell>
+                  <TableCell>
+                    {" "}
+                    {course.creator?.firstName} {course.creator?.lastName}
+                  </TableCell>
 
-                <IconButton color="error">
-                  <DeleteIcon />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-           ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-)}
+                  <TableCell align="center">
+                    <IconButton color="primary">
+                      <EditIcon />
+                    </IconButton>
+
+                    <IconButton color="error"
+                      onClick={() => {
+                        // setSelectedUserId(user.id);
+                        setOpenModal(true);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+      <ConfirmDialog
+        open={openModal}
+        title="Delete Course"
+        description="Are you sure you want to delete this Course?"
+        onConfirm={handleDelete}
+        onCancel={() => setOpenModal(false)}
+        color="error"
+      />
       {/* Modal */}
       {open && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">

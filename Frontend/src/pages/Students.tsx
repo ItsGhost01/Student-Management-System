@@ -3,6 +3,22 @@ import { Plus, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { toast } from "react-toastify";
+
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+} from "@mui/material";
+import ConfirmDialog from "./ConfirmDialog";
+
 // import { useState } from "react";
 
 type FormValues = {
@@ -19,8 +35,12 @@ interface Course {
 }
 
 export default function Students() {
-  const [open, setOpen] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [open, setOpen] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+
 
   const form = useForm<FormValues>();
   const {
@@ -75,6 +95,10 @@ export default function Students() {
         console.error(error);
       });
   }, []);
+
+  const handleDelete = async () => {
+ 
+};
 
   return (
     <div>
@@ -151,6 +175,71 @@ export default function Students() {
           </div>
         </div>
       </div>
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <TableContainer className="mt-3 " component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Avatar</TableCell>
+                <TableCell>StudentId</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Age</TableCell>
+                <TableCell>Course</TableCell>
+                <TableCell align="center">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              
+                <TableRow key="">
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+
+                  <TableCell align="center">
+                    <IconButton
+                      color="primary"
+                      onClick={() => {
+                        // setSelectedUserId(user.id);
+                        setOpen(true);
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+
+                        <IconButton
+                      color="error"
+                      onClick={() => {
+                        // setSelectedUserId(user.id);
+                        setOpenModal(true);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+
+    
+                  </TableCell>
+                </TableRow>
+            
+
+              <ConfirmDialog
+        
+                      open={openModal}
+                      title="Delete Student"
+                      description="Are you sure you want to delete this student?"
+                      onConfirm={handleDelete}
+                      onCancel={() => setOpenModal(false)}
+                      color="error"
+                    />
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
 
       {open && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
