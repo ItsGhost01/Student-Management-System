@@ -5,13 +5,27 @@ import Courses from "../models/Course.js";
 
 export const addStudent = async (req: Request, res: Response) => {
   try {
-    const students = await Student.create({
-        name: req.body.name,
-        email: req.body.email,
-        age: req.body.age,
-        image: req.file?.filename,
-        courseId: req.body.courseId
+
+        // Check if email already exists first
+    const existingStudent = await Student.findOne({
+      where: { email: req.body.email },
     });
+
+    if (existingStudent) {
+      return res.status(409).json({
+        success: false,
+        message: "Email already exists",
+      });
+    }
+    
+    const students = await Student.create({
+      name: req.body.name,
+      email: req.body.email,
+      age: req.body.age,
+      image: req.file?.filename,
+      courseId: req.body.courseId,
+    });
+
 
     return res.status(201).json({
       success: true,
@@ -32,8 +46,8 @@ export const getStudent = async (req: Request, res: Response) => {
     let searchText = "";
     let sort: [string, "ASC" | "DESC"] = ["createdAt", "DESC"];
 
-    if (req.query.q) {
-      searchText = req.query.q as string;
+    if (req.query.student) {
+      searchText = req.query.student as string;
     }
 
     if (req.query.sort === "oldest") {
@@ -48,12 +62,12 @@ export const getStudent = async (req: Request, res: Response) => {
       },
 
       include: [
-    {
-      model: Courses,
-      as: "course",
-      attributes: ["title"],
-    },
-  ],
+        {
+          model: Courses,
+          as: "course",
+          attributes: ["title"],
+        },
+      ],
       order: [sort],
     });
 
@@ -71,11 +85,7 @@ export const getStudent = async (req: Request, res: Response) => {
   }
 };
 
-
-export const getStudentById = async (
-  req: Request,
-  res: Response
-) => {
+export const getStudentById = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
 
@@ -108,4 +118,3 @@ export const getStudentById = async (
     });
   }
 };
-

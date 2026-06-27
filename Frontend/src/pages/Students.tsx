@@ -16,8 +16,12 @@ import {
   TableRow,
   Paper,
   IconButton,
+  Avatar,
 } from "@mui/material";
 import ConfirmDialog from "./ConfirmDialog";
+import { useSearchParams } from "react-router";
+
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 // import { useState } from "react";
 
@@ -39,8 +43,14 @@ export default function Students() {
   const [open, setOpen] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [student, setStudents] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
 
+  //   const [filters, setFilters] = useState({
+  //   sort: searchParams.get("sort") || "latest",
+  //   courseIds: [],
+  // });
 
   const form = useForm<FormValues>();
   const {
@@ -50,6 +60,7 @@ export default function Students() {
     formState: { errors },
   } = form;
 
+  // Add Student
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     const token = localStorage.getItem("token");
 
@@ -71,15 +82,19 @@ export default function Students() {
         },
       });
       toast.success("Student added Succesfully");
-      setOpen(false);
-    } catch (error) {
-      console.log(error);
 
-      toast.error("failed to add student");
+      setOpen(false);
+    } catch (error: any) {
+      console.log(error);
+      if (error.response?.status === 409) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("failed to add student");
+      }
     }
   };
 
-  useEffect(() => {
+  const fetchCourse = async () => {
     const token = localStorage.getItem("token");
 
     axios
@@ -94,11 +109,50 @@ export default function Students() {
       .catch((error) => {
         console.error(error);
       });
-  }, []);
+  };
 
-  const handleDelete = async () => {
- 
-};
+  const fetchStudent = async () => {
+    const searchText = searchParams.get("student") || "";
+    const sort = searchParams.get("sort") || "latest";
+    const token = localStorage.getItem("token");
+
+    axios
+      .get(
+        `http://localhost:3000/api/students?student=${searchText}&sort=${sort}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      .then((res) => {
+        setStudents(res.data.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  useEffect(() => {
+    fetchCourse();
+    fetchStudent();
+  }, [searchParams]);
+
+  // function handleSearch(e: any) {
+  //   e.preventDefault();
+
+  //   const value = e.target.searchText.value;
+
+  //   setSearchParams((prev) => {
+  //     const newParams = new URLSearchParams(prev);
+  //     newParams.set("student", value);
+  //     return newParams;
+  //   });
+  // }
+
+  //Delete
+  const handleDelete = async () => {};
 
   return (
     <div>
@@ -109,7 +163,7 @@ export default function Students() {
             <h1 className="text-3xl font-bold text-gray-900">Students</h1>
 
             <span className="px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded-lg">
-              100 Total
+              Total {student.length}
             </span>
           </div>
 
@@ -128,19 +182,26 @@ export default function Students() {
       {/* Search & Filters */}
       <div className="bg-white rounded-2xl shadow-sm p-4 mt-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          {/* Search */}
-          <div className="relative w-full lg:max-w-md">
-            <Search
-              size={20}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            />
+          <form>
+            {/* Search */}
+            <div className="relative w-full lg:max-w-md">
+              <Search
+                size={20}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              />
 
-            <input
-              type="text"
-              placeholder="Search by student name..."
-              className="w-full h-11 pl-12 pr-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
+              <input
+              
+                name="student"
+                type="text"
+                onChange={(e) => {
+                  setSearchParams({ student: e.target.value });
+                }}
+                placeholder="Search by student name..."
+                className="w-full h-11 pl-12 pr-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+          </form>
 
           {/* Filters */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -177,7 +238,26 @@ export default function Students() {
       </div>
 
       {loading ? (
-        <p>Loading...</p>
+        <div className="py-4 text-center text-black text-2xl relative">
+          <DotLottieReact
+            src="/Loading.lottie"
+            loop
+            autoplay
+            className="h-auto"
+          />
+
+          <p>Loading...</p>
+        </div>
+      ) : student.length === 0 ? (
+        <div className="py-4 text-center text-black text-2xl relative">
+          <DotLottieReact
+            src="/nodata.lottie"
+            loop
+            autoplay
+            className="h-auto"
+          />
+          <p className="font-bold">No Student Data Found</p>
+        </div>
       ) : (
         <TableContainer className="mt-3 " component={Paper}>
           <Table>
@@ -185,6 +265,7 @@ export default function Students() {
               <TableRow>
                 <TableCell>Avatar</TableCell>
                 <TableCell>StudentId</TableCell>
+                <TableCell>Name</TableCell>
                 <TableCell>Email</TableCell>
                 <TableCell>Age</TableCell>
                 <TableCell>Course</TableCell>
@@ -193,26 +274,27 @@ export default function Students() {
             </TableHead>
 
             <TableBody>
-              
-                <TableRow key="">
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
+              {student.map((student: any) => (
+                <TableRow key={student.id}>
+                  <TableCell>
+                    <Avatar
+                      src={`http://localhost:3000/uploads/students/${student.image}`}
+                      alt="image"
+                      sx={{ width: 50, height: 50 }}
+                    />
+                  </TableCell>
+                  <TableCell>{student.studentId}</TableCell>
+                  <TableCell>{student.name}</TableCell>
+                  <TableCell>{student.email}</TableCell>
+                  <TableCell>{student.age}</TableCell>
+                  <TableCell>{student.course.title}</TableCell>
 
                   <TableCell align="center">
-                    <IconButton
-                      color="primary"
-                      onClick={() => {
-                        // setSelectedUserId(user.id);
-                        setOpen(true);
-                      }}
-                    >
+                    <IconButton color="primary">
                       <EditIcon />
                     </IconButton>
 
-                        <IconButton
+                    <IconButton
                       color="error"
                       onClick={() => {
                         // setSelectedUserId(user.id);
@@ -221,21 +303,18 @@ export default function Students() {
                     >
                       <DeleteIcon />
                     </IconButton>
-
-    
                   </TableCell>
                 </TableRow>
-            
+              ))}
 
               <ConfirmDialog
-        
-                      open={openModal}
-                      title="Delete Student"
-                      description="Are you sure you want to delete this student?"
-                      onConfirm={handleDelete}
-                      onCancel={() => setOpenModal(false)}
-                      color="error"
-                    />
+                open={openModal}
+                title="Delete Student"
+                description="Are you sure you want to delete this student?"
+                onConfirm={handleDelete}
+                onCancel={() => setOpenModal(false)}
+                color="error"
+              />
             </TableBody>
           </Table>
         </TableContainer>

@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useSearchParams } from "react-router";
 
 import {
   Table,
@@ -13,7 +14,7 @@ import {
   IconButton,
 } from "@mui/material";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ConfirmDialog from "./ConfirmDialog";
 import { toast } from "react-toastify";
 
@@ -22,56 +23,75 @@ export default function Users() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
+      const searchText = searchParams.get("q") || "";
 
-      const response = await axios.get("http://localhost:3000/api/users", {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axios.get(
+        `http://localhost:3000/api/users?q=${searchText}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
-      console.log(response.data);
+      );
+
       setUsers(response.data.data);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
-  };
-
-    useEffect(() => {
-    fetchUsers();
-  }, []);
+  }, [searchParams]);
 
 
-const handleDelete = async () => {
-  try {
-    const token = localStorage.getItem("token");
+useEffect(() => {
+  fetchUsers();
+}, [fetchUsers]);
 
-    await axios.delete(
-      `http://localhost:3000/api/delete/${selectedUserId}`,
-      {
+  // For Search (only if pressed center)
+  // const handleSearch = (e: any) => {
+  //   e.preventDefault();
+
+  //   const value = e.currentTarget.SearchText.value.trim();
+
+  //   setSearchParams((prev) => {
+  //     const params = new URLSearchParams(prev);
+
+  //     if (value) {
+  //       params.set("q", value);
+  //     } else {
+  //       params.delete("q");
+  //     }
+
+  //     return params;
+  //   });
+  // };
+
+  const handleDelete = async () => {
+    try {
+      setLoading(true);
+
+      const token = localStorage.getItem("token");
+
+      await axios.delete(`http://localhost:3000/api/delete/${selectedUserId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
-    );
+      });
 
-    setOpen(false);
-    //refresh user list after deleting
-    toast.success("user deleted Succesfully")
-    fetchUsers();
-  } catch (error) {
-    toast.error("Failed to delete user")
-    console.error(error);
-  }
-};
-
-
+      setOpen(false);
+      //refresh user list after deleting
+      toast.success("user deleted Succesfully");
+      await fetchUsers();
+    } catch (error) {
+      toast.error("Failed to delete user");
+      console.error(error);
+    } 
+  };
 
   return (
     <div className="space-y-6">
@@ -93,18 +113,26 @@ const handleDelete = async () => {
       <div className="bg-white rounded-2xl shadow-sm p-4 mt-5">
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           {/* Search */}
-          <div className="relative w-full max-w-sm">
-            <Search
-              size={20}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            />
 
-            <input
-              type="text"
-              placeholder="Search by name..."
-              className="w-full h-11 pl-12 pr-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
+          <form>
+            <div className="relative w-full max-w-sm">
+              <Search
+                size={20}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+
+              <input
+                type="text"
+                defaultValue={searchParams.get("q") || ""}
+                name="q"
+                onChange={(e) => {
+                  setSearchParams({ q: e.target.value });
+                }}
+                placeholder="Search by name..."
+                className="w-full h-11 pl-12 pr-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+          </form>
 
           {/* Filter */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
@@ -159,20 +187,18 @@ const handleDelete = async () => {
                     >
                       <DeleteIcon />
                     </IconButton>
-
-    
                   </TableCell>
                 </TableRow>
               ))}
 
               <ConfirmDialog
-                      open={open}
-                      title="Delete User"
-                      description="Are you sure you want to delete this user?"
-                      onConfirm={handleDelete}
-                      onCancel={() => setOpen(false)}
-                      color="error"
-                    />
+                open={open}
+                title="Delete User"
+                description="Are you sure you want to delete this user?"
+                onConfirm={handleDelete}
+                onCancel={() => setOpen(false)}
+                color="error"
+              />
             </TableBody>
           </Table>
         </TableContainer>
