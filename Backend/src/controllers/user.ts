@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import User from "../models/User.js";
 // import User from "../models/User.js";
 
@@ -75,6 +75,17 @@ export const getUsers = async (
           [Op.iLike]: `%${searchText}%`,
         },
       },
+      Sequelize.where(
+        Sequelize.fn(
+          "concat",
+          Sequelize.col("first_name"),
+          " ",
+          Sequelize.col("last_name")
+        ),
+        {
+          [Op.iLike]: `%${searchText}%`,
+        }
+      ),
     ],
   },
 

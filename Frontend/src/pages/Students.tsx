@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 import {
   Table,
@@ -46,11 +47,6 @@ export default function Students() {
   const [loading, setLoading] = useState(true);
   const [student, setStudents] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
-
-  //   const [filters, setFilters] = useState({
-  //   sort: searchParams.get("sort") || "latest",
-  //   courseIds: [],
-  // });
 
   const form = useForm<FormValues>();
   const {
@@ -114,11 +110,12 @@ export default function Students() {
   const fetchStudent = async () => {
     const searchText = searchParams.get("student") || "";
     const sort = searchParams.get("sort") || "latest";
+    const course = searchParams.get("course") || "";
     const token = localStorage.getItem("token");
 
     axios
       .get(
-        `http://localhost:3000/api/students?student=${searchText}&sort=${sort}`,
+        `http://localhost:3000/api/students?student=${searchText}&sort=${sort}&course=${course}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -191,7 +188,6 @@ export default function Students() {
               />
 
               <input
-              
                 name="student"
                 type="text"
                 onChange={(e) => {
@@ -211,7 +207,23 @@ export default function Students() {
                 Course:
               </label>
 
-              <select className="h-11 px-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary">
+              <select
+               value={searchParams.get("course") || ""}
+                className="h-11 px-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+                onChange={(e) => {
+                  setSearchParams((prev) => {
+                    const params = new URLSearchParams(prev);
+
+                    if (e.target.value) {
+                      params.set("course", e.target.value);
+                    } else {
+                      params.delete("course");
+                    }
+
+                    return params;
+                  });
+                }}
+              >
                 <option value="">All Courses</option>
 
                 {courses.map((course) => (
@@ -228,7 +240,17 @@ export default function Students() {
                 Sort:
               </label>
 
-              <select className="h-11 px-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary">
+              <select
+                value={searchParams.get("sort") || "latest"}
+                className="h-11 px-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+                onChange={(e) => {
+                  setSearchParams((prev) => {
+                    const params = new URLSearchParams(prev);
+                    params.set("sort", e.target.value);
+                    return params;
+                  });
+                }}
+              >
                 <option value="latest">Latest</option>
                 <option value="oldest">Oldest</option>
               </select>
@@ -290,6 +312,9 @@ export default function Students() {
                   <TableCell>{student.course.title}</TableCell>
 
                   <TableCell align="center">
+                    <IconButton color="primary">
+                      <VisibilityIcon />
+                    </IconButton>
                     <IconButton color="primary">
                       <EditIcon />
                     </IconButton>

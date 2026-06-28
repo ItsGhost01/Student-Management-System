@@ -5,8 +5,7 @@ import Courses from "../models/Course.js";
 
 export const addStudent = async (req: Request, res: Response) => {
   try {
-
-        // Check if email already exists first
+    // Check if email already exists first
     const existingStudent = await Student.findOne({
       where: { email: req.body.email },
     });
@@ -17,7 +16,7 @@ export const addStudent = async (req: Request, res: Response) => {
         message: "Email already exists",
       });
     }
-    
+
     const students = await Student.create({
       name: req.body.name,
       email: req.body.email,
@@ -25,7 +24,6 @@ export const addStudent = async (req: Request, res: Response) => {
       image: req.file?.filename,
       courseId: req.body.courseId,
     });
-
 
     return res.status(201).json({
       success: true,
@@ -43,8 +41,13 @@ export const addStudent = async (req: Request, res: Response) => {
 
 export const getStudent = async (req: Request, res: Response) => {
   try {
+    let course = "";
     let searchText = "";
     let sort: [string, "ASC" | "DESC"] = ["createdAt", "DESC"];
+
+    if (req.query.course) {
+      course = req.query.course as string;
+    }
 
     if (req.query.student) {
       searchText = req.query.student as string;
@@ -54,18 +57,22 @@ export const getStudent = async (req: Request, res: Response) => {
       sort = ["createdAt", "ASC"];
     }
 
-    const studentData = await Student.findAndCountAll({
-      where: {
-        name: {
-          [Op.iLike]: `%${searchText}%`,
-        },
+    const where: any = {
+      name: {
+        [Op.iLike]: `%${searchText}%`,
       },
+    };
 
+    if (course) {
+      where.courseId = course;
+    }
+    const studentData = await Student.findAndCountAll({
+      where,
       include: [
         {
           model: Courses,
           as: "course",
-          attributes: ["title"],
+          attributes: ["id", "courseId", "title"],
         },
       ],
       order: [sort],

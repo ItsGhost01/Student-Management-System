@@ -17,6 +17,7 @@ import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import ConfirmDialog from "./ConfirmDialog";
 import { toast } from "react-toastify";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 export default function Users() {
   const [users, setUsers] = useState<any[]>([]);
@@ -28,10 +29,13 @@ export default function Users() {
   const fetchUsers = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
-      const searchText = searchParams.get("q") || "";
+      const user = searchParams.get("q") || "";
+      const sort = searchParams.get("sort") || "latest";
+      const role = searchParams.get("role") || "";
+
 
       const response = await axios.get(
-        `http://localhost:3000/api/users?q=${searchText}`,
+        `http://localhost:3000/api/users?q=${user}&sort=${sort}&role=${role}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -140,20 +144,58 @@ useEffect(() => {
               Filter:
             </label>
 
-            <select className="w-full sm:w-40 h-11 px-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary">
+            <select className="w-full sm:w-40 h-11 px-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+                value={searchParams.get("role") || ""}
+                onChange={(e) => {
+                  setSearchParams((prev) => {
+                    const params = new URLSearchParams(prev);
+                    params.set("role", e.target.value);
+                    return params;
+                  });
+                }}
+            >
               <option value="">All Roles</option>
               <option value="admin">Admin</option>
               <option value="staff">Staff</option>
             </select>
-            <select className="w-full sm:w-40 h-11 px-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary">
-              <option value="">Latest</option>
-              <option value="">Oldest</option>
+            <select 
+               value={searchParams.get("sort") || "latest"}
+            className="w-full sm:w-40 h-11 px-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+             onChange={(e) => {
+                  setSearchParams((prev) => {
+                    const params = new URLSearchParams(prev);
+                    params.set("sort", e.target.value);
+                    return params;
+                  });
+                }}
+            >
+              <option value="latest">Latest</option>
+              <option value="oldest">Oldest</option>
             </select>
           </div>
         </div>
       </div>
       {loading ? (
-        <p>Loading...</p>
+         <div className="py-4 text-center text-black text-2xl relative">
+          <DotLottieReact
+            src="/Loading.lottie"
+            loop
+            autoplay
+            className="h-auto"
+          />
+
+          <p>Loading...</p>
+        </div>
+      ) : users.length === 0 ? (
+        <div className="py-4 text-center text-black text-2xl relative">
+          <DotLottieReact
+            src="/nodata.lottie"
+            loop
+            autoplay
+            className="h-auto"
+          />
+          <p className="font-bold">No Users Data Found</p>
+        </div>
       ) : (
         <TableContainer className="mt-3 " component={Paper}>
           <Table>

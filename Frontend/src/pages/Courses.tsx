@@ -19,6 +19,7 @@ import {
   IconButton,
 } from "@mui/material";
 import ConfirmDialog from "./ConfirmDialog";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 export default function Courses() {
   const [courses, setCourses] = useState<any[]>([]);
@@ -145,8 +146,27 @@ export default function Courses() {
       </div>
 
       {loading ? (
-        <p>Loading...</p>
-      ) : (
+             <div className="py-4 text-center text-black text-2xl relative">
+          <DotLottieReact
+            src="/Loading.lottie"
+            loop
+            autoplay
+            className="h-auto"
+          />
+
+          <p>Loading...</p>
+        </div>
+      ) : courses.length === 0 ? (
+        <div className="py-4 text-center text-black text-2xl relative">
+          <DotLottieReact
+            src="/nodata.lottie"
+            loop
+            autoplay
+            className="h-auto"
+          />
+          <p className="font-bold">No course Data Found</p>
+        </div>
+      ): (
         <TableContainer className="mt-3 " component={Paper}>
           <Table>
             <TableHead>
