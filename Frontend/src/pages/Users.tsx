@@ -127,7 +127,7 @@ useEffect(() => {
 
               <input
                 type="text"
-                defaultValue={searchParams.get("q") || ""}
+                value={searchParams.get("q") || ""}
                 name="q"
                 onChange={(e) => {
                   setSearchParams({ q: e.target.value });

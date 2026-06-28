@@ -31,6 +31,7 @@ const courses = await Courses.create({
 };
 
 
+// get course data api
 
 export const getCourse = async (
   req: Request,
@@ -96,3 +97,44 @@ export const getCourse = async (
     });
   }
 };
+
+// Delete api
+export const deleteCourse = async (req: Request, res: Response) => {
+  try {
+    const courseId = req.params.id;
+
+    // Check if any students are enrolled in this course
+    const studentCount = await Students.count({
+      where: {
+        courseId,
+      },
+    });
+
+    if (studentCount > 0) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Cannot delete this course because students are enrolled in it. Remove or reassign the students first.",
+      });
+    }
+
+const deleted = await Courses.destroy({
+  where: {id: courseId}
+})
+
+if(!deleted) {
+  return res.status(404).json({
+    message: "Course not found",
+  })
+} else {
+  return res.status(200).json({
+    message: "Course Deleted Succesfully"
+  })
+}
+  } catch(error){
+    console.log(error);
+    return res.status(500).json({
+      message: "server error"
+    })
+  }
+}

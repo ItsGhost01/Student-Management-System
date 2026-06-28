@@ -20,12 +20,15 @@ import {
 } from "@mui/material";
 import ConfirmDialog from "./ConfirmDialog";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { useSearchParams } from "react-router";
 
 export default function Courses() {
   const [courses, setCourses] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   type FormValues = {
     title: string;
@@ -62,14 +65,20 @@ export default function Courses() {
   };
 
   const fetchCourses = async () => {
+    const searchText = searchParams.get("q") || "";
+    const sort = searchParams.get("sort") || "latest";
+
     try {
       const token = localStorage.getItem("token");
 
-      const response = await axios.get("http://localhost:3000/api/courses", {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axios.get(
+        `http://localhost:3000/api/courses?q=${searchText}&sort=${sort}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       console.log(response.data);
       setCourses(response.data.data);
     } catch (error) {
@@ -81,9 +90,33 @@ export default function Courses() {
 
   useEffect(() => {
     fetchCourses();
-  }, []);
+  }, [searchParams]);
 
-  const handleDelete = async () => {};
+const handleDelete = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    await axios.delete(
+      `http://localhost:3000/api/courses/${selectedUserId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    toast.success("Course deleted successfully");
+    setOpenModal(false);
+    setSelectedUserId(null);
+
+    await fetchCourses();
+  } catch (error: any) {
+    console.error(error);
+    toast.error(
+    error.response?.data?.message || "Failed to delete course."
+  );
+  }
+};
 
   return (
     <>
@@ -118,18 +151,36 @@ export default function Courses() {
       <div className="bg-white rounded-2xl shadow-sm p-4 mt-5">
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           {/* Search */}
-          <div className="relative w-full max-w-sm">
-            <Search
-              size={20}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            />
 
-            <input
-              type="text"
-              placeholder="Search by course..."
-              className="w-full h-11 pl-12 pr-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
+          <form>
+            <div className="relative w-full max-w-sm">
+              <Search
+                size={20}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+
+              <input
+                value={searchParams.get("q") || ""}
+                type="text"
+                name="q"
+                onChange={(e) => {
+                  setSearchParams((prev) => {
+                    const params = new URLSearchParams(prev);
+
+                    if (e.target.value) {
+                      params.set("q", e.target.value);
+                    } else {
+                      params.delete("q");
+                    }
+
+                    return params;
+                  });
+                }}
+                placeholder="Search by course..."
+                className="w-full h-11 pl-12 pr-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+          </form>
 
           {/* Filter */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
@@ -137,8 +188,18 @@ export default function Courses() {
               Filter:
             </label>
 
-            <select className="w-full sm:w-40 h-11 px-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary">
-              <option value="">Latest</option>
+            <select
+              value={searchParams.get("sort") || "latest"}
+              className="w-full sm:w-40 h-11 px-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+              onChange={(e) => {
+                setSearchParams((prev) => {
+                  const params = new URLSearchParams(prev);
+                  params.set("sort", e.target.value);
+                  return params;
+                });
+              }}
+            >
+              <option value="latest">Latest</option>
               <option value="oldest">Oldest</option>
             </select>
           </div>
@@ -146,7 +207,7 @@ export default function Courses() {
       </div>
 
       {loading ? (
-             <div className="py-4 text-center text-black text-2xl relative">
+        <div className="py-4 text-center text-black text-2xl relative">
           <DotLottieReact
             src="/Loading.lottie"
             loop
@@ -166,7 +227,7 @@ export default function Courses() {
           />
           <p className="font-bold">No course Data Found</p>
         </div>
-      ): (
+      ) : (
         <TableContainer className="mt-3 " component={Paper}>
           <Table>
             <TableHead>
@@ -197,9 +258,10 @@ export default function Courses() {
                       <EditIcon />
                     </IconButton>
 
-                    <IconButton color="error"
+                    <IconButton
+                      color="error"
                       onClick={() => {
-                        // setSelectedUserId(user.id);
+                        setSelectedUserId(course.id);
                         setOpenModal(true);
                       }}
                     >
