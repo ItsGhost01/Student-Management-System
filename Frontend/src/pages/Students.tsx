@@ -23,6 +23,7 @@ import ConfirmDialog from "./ConfirmDialog";
 import { useSearchParams } from "react-router";
 
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import StudentViewModal from "./StudentViewModal";
 
 // import { useState } from "react";
 
@@ -47,6 +48,8 @@ export default function Students() {
   const [loading, setLoading] = useState(true);
   const [student, setStudents] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedStudent, setSelectedStudent] = useState<number | null>(null);
+  const [viewOpen, setViewOpen] = useState(false);
 
   const form = useForm<FormValues>();
   const {
@@ -80,6 +83,7 @@ export default function Students() {
       toast.success("Student added Succesfully");
 
       setOpen(false);
+      fetchStudent();
     } catch (error: any) {
       console.log(error);
       if (error.response?.status === 409) {
@@ -149,7 +153,30 @@ export default function Students() {
   // }
 
   //Delete
-  const handleDelete = async () => {};
+  const handleDelete = async () => {
+    try {
+      setLoading(true);
+
+      const token = localStorage.getItem("token");
+
+      await axios.delete(
+        `http://localhost:3000/api/student/${selectedStudent}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setOpenModal(false);
+      //refresh user list after deleting
+      toast.success("Student deleted Succesfully");
+      await fetchStudent();
+    } catch (error) {
+      toast.error("Failed to delete Student");
+      console.error(error);
+    }
+  };
 
   return (
     <div>
@@ -169,7 +196,7 @@ export default function Students() {
 
         <button
           onClick={() => setOpen(true)}
-          className="px-4 py-3 text-white bg-primary rounded-lg shadow hover:bg-buttonSec flex items-center gap-2 w-fit"
+          className="px-4 py-3 text-white bg-primary rounded-lg shadow cursor-pointer hover:bg-buttonSec flex items-center gap-2 w-fit"
         >
           <Plus className="h-5 w-5" />
           Add Student
@@ -208,7 +235,7 @@ export default function Students() {
               </label>
 
               <select
-               value={searchParams.get("course") || ""}
+                value={searchParams.get("course") || ""}
                 className="h-11 px-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
                 onChange={(e) => {
                   setSearchParams((prev) => {
@@ -312,7 +339,13 @@ export default function Students() {
                   <TableCell>{student.course.title}</TableCell>
 
                   <TableCell align="center">
-                    <IconButton color="primary">
+                    <IconButton
+                      color="primary"
+                      onClick={() => {
+                        setSelectedStudent(student);
+                        setViewOpen(true);
+                      }}
+                    >
                       <VisibilityIcon />
                     </IconButton>
                     <IconButton color="primary">
@@ -322,7 +355,7 @@ export default function Students() {
                     <IconButton
                       color="error"
                       onClick={() => {
-                        // setSelectedUserId(user.id);
+                        setSelectedStudent(student.id);
                         setOpenModal(true);
                       }}
                     >
@@ -344,6 +377,12 @@ export default function Students() {
           </Table>
         </TableContainer>
       )}
+
+      <StudentViewModal
+        open={viewOpen}
+        student={selectedStudent}
+        onClose={() => setViewOpen(false)}
+      />
 
       {open && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">

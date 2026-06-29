@@ -259,7 +259,7 @@ export default function Settings() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-primary text-white py-3 rounded-lg hover:bg-buttonSec transition"
+              className="w-full bg-primary text-white py-3 rounded-lg cursor-pointer hover:bg-buttonSec transition"
               onClick={() => {
                 // setSelectedUserId(user.id);
                 setOpenUpdateModal(true);
@@ -421,7 +421,7 @@ export default function Settings() {
             </div>
 
             <button
-              className="w-full bg-red-600 text-white py-3 rounded-lg"
+              className="w-full bg-red-600 text-white py-3 rounded-lg cursor-pointer hover:bg-red-500"
               onClick={() => {
                 // setSelectedUserId(user.id);
                 setOpenChangeModal(true);

@@ -125,3 +125,29 @@ export const getStudentById = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+export const deleteStudent = async (req: Request, res: Response) => {
+  try {
+    const studentId = req.params.id;
+
+const deleted = await Student.destroy({
+  where: {id: studentId}
+})
+
+if(!deleted) {
+  return res.status(404).json({
+    message: "Student Id not found",
+  })
+} else {
+  return res.status(200).json({
+    message: "Student Deleted Succesfully"
+  })
+}
+  } catch(error){
+    console.log(error);
+    return res.status(500).json({
+      message: "server error"
+    })
+  }
+}

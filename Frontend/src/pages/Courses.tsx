@@ -140,7 +140,7 @@ const handleDelete = async () => {
 
         <button
           onClick={() => setOpen(true)}
-          className="w-full md:w-auto px-4 py-3 text-white bg-primary rounded-lg shadow hover:bg-buttonSec flex items-center justify-center gap-2"
+          className="w-full md:w-auto px-4 py-3 text-white bg-primary rounded-lg shadow cursor-pointer hover:bg-buttonSec flex items-center justify-center gap-2"
         >
           <Plus className="h-5 w-5" />
           Add Course
