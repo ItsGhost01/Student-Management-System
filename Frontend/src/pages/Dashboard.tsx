@@ -3,11 +3,19 @@ import type { RootState } from "../redux/store";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import DonutChart from "../components/DonutChart";
+import BarChart from "../components/BarChart";
 
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-
-import { Doughnut } from "react-chartjs-2";
-ChartJS.register(ArcElement, Tooltip, Legend);
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Avatar,
+} from "@mui/material";
 
 interface DashboardInfo {
   totalStudents: number;
@@ -28,9 +36,17 @@ interface Student {
   };
 }
 
+interface StudentPerCourse {
+  course: string;
+  students: number;
+}
+
 export default function Dashboard() {
   const [info, setInfo] = useState<DashboardInfo | null>(null);
-  const [recentStudent, setRecentStudent] = useState<Student | null>(null);
+  const [recentStudent, setRecentStudent] = useState<Student[]>([]);
+  const [studentPerCourse, setStudentPerCourse] = useState<StudentPerCourse[]>(
+    [],
+  );
 
   const reduxUser = useSelector((state: RootState) => state.user.value);
 
@@ -45,6 +61,23 @@ export default function Dashboard() {
       })
       .then((res) => {
         setInfo(res.data.data);
+      })
+      .catch((error: any) => {
+        console.error(error);
+      });
+  };
+
+  const fetchStudentPerCourse = async () => {
+    const token = localStorage.getItem("token");
+
+    axios
+      .get("http://localhost:3000/api/dashboard/students-per-course", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        setStudentPerCourse(res.data.data);
       })
       .catch((error: any) => {
         console.error(error);
@@ -68,25 +101,12 @@ export default function Dashboard() {
       });
   };
 
+  // fetch every api
   useEffect(() => {
     fetchDashboardInfo();
     fetchRecentStudent();
+    fetchStudentPerCourse();
   }, []);
-
-  const roleData = {
-    labels: ["Staff", "Admins"],
-    datasets: [
-      {
-        label: "Users",
-        data: [info?.totalStaff, info?.totalAdmins],
-        backgroundColor: [
-          "#3B82F6", // Blue
-          "#F59E0B", // Amber
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
 
   return (
     <div className="space-y-6">
@@ -148,15 +168,63 @@ export default function Dashboard() {
           <p className="text-gray-500 text-sm">Active Users</p>
           <h3 className="text-3xl font-bold mt-2">{info?.totalUser}</h3>
         </div>
-      
       </div>
-        <div className="bg-white rounded-xl shadow p-5">
-          <h2 className="text-lg font-semibold mb-4">User Roles</h2>
+      <div className="bg-white rounded-xl shadow p-5">
+        <h2 className="text-lg font-semibold mb-4">User Roles</h2>
 
-          <div className="w-64 mx-auto">
-            <Doughnut data={roleData} />
-          </div>
+        <div className="w-64 mx-auto">
+          <DonutChart
+            totalStaff={info?.totalStaff ?? 0}
+            totalAdmins={info?.totalAdmins ?? 0}
+          />
         </div>
+      </div>
+      <div className="bg-white rounded-xl shadow p-5">
+        <h2 className="text-lg font-semibold mb-4">Student Per Course</h2>
+
+        <div className="w-auto mx-auto">
+          <BarChart data={studentPerCourse} />
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow p-5">
+        <h2 className="text-lg font-semibold mb-4">Recent Students</h2>
+
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Avatar</TableCell>
+                <TableCell>Student ID</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Age</TableCell>
+                <TableCell>Course</TableCell>
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              {recentStudent?.map((student: any) => (
+                <TableRow key={student.id}>
+                  <TableCell>
+                    <Avatar
+                      src={`http://localhost:3000/uploads/students/${student.image}`}
+                      alt={student.name}
+                      sx={{ width: 45, height: 45 }}
+                    />
+                  </TableCell>
+
+                  <TableCell>{student.studentId}</TableCell>
+                  <TableCell>{student.name}</TableCell>
+                  <TableCell>{student.email}</TableCell>
+                  <TableCell>{student.age}</TableCell>
+                  <TableCell>{student.course?.title}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
     </div>
   );
 }
