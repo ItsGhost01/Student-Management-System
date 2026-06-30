@@ -48,7 +48,7 @@ export default function Courses() {
     const token = localStorage.getItem("token");
 
     try {
-      await axios.post("http://localhost:3000/api/add/course", data, {
+      await axios.post("${import.meta.env.VITE_API_URL}/api/add/course", data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -72,7 +72,7 @@ export default function Courses() {
       const token = localStorage.getItem("token");
 
       const response = await axios.get(
-        `http://localhost:3000/api/courses?q=${searchText}&sort=${sort}`,
+        `${import.meta.env.VITE_API_URL}/api/courses?q=${searchText}&sort=${sort}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -97,7 +97,7 @@ const handleDelete = async () => {
     const token = localStorage.getItem("token");
 
     await axios.delete(
-      `http://localhost:3000/api/courses/${selectedCourseId}`,
+      `${import.meta.env.VITE_API_URL}/api/courses/${selectedCourseId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -124,7 +124,7 @@ const onUpdate: SubmitHandler<FormValues> = async (data) => {
  const token = localStorage.getItem("token");
 
  try {
-  await axios.put(`http://localhost:3000/api/courses/${selectedCourse.id}`,
+  await axios.put(`${import.meta.env.VITE_API_URL}/api/courses/${selectedCourse.id}`,
 {
   title: data.title,
   description: data.description,

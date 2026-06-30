@@ -35,7 +35,7 @@ export default function Users() {
 
 
       const response = await axios.get(
-        `http://localhost:3000/api/users?q=${user}&sort=${sort}&role=${role}`,
+        `${import.meta.env.VITE_API_URL}/api/users?q=${user}&sort=${sort}&role=${role}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -81,7 +81,7 @@ useEffect(() => {
 
       const token = localStorage.getItem("token");
 
-      await axios.delete(`http://localhost:3000/api/delete/${selectedUserId}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/delete/${selectedUserId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

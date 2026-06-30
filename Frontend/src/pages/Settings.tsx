@@ -72,7 +72,7 @@ export default function Settings() {
       }
 
       const response = await axios.put(
-        "http://localhost:3000/api/profile",
+        "${import.meta.env.VITE_API_URL}/api/profile",
         formData,
         {
           headers: {
@@ -98,7 +98,7 @@ export default function Settings() {
 
     try {
       await axios.put(
-        "http://localhost:3000/api/change-password",
+        "${import.meta.env.VITE_API_URL}/api/change-password",
         {
           currentPassword: data.currentPassword,
           newPassword: data.newPassword,
@@ -160,7 +160,7 @@ export default function Settings() {
               <div className="w-24 h-24 rounded-full flex items-center justify-center overflow-hidden bg-primary">
                 {reduxUser?.image ? (
                   <img
-                    // src={`http://localhost:3000/${reduxUser.image}`}
+                    // src={`${import.meta.env.VITE_API_URL}/${reduxUser.image}`}
                     src={reduxUser?.image}
                     alt="Profile"
                     className="w-full h-full object-cover"

@@ -61,7 +61,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
         <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm overflow-hidden">
           {reduxUser?.image ? (
             <img
-              // src={`http://localhost:3000/${reduxUser.image}`}
+              // src={`${import.meta.env.VITE_API_URL}/${reduxUser.image}`}
               src={reduxUser.image}
               alt="Profile"
               className="w-full h-full object-cover rounded-full"

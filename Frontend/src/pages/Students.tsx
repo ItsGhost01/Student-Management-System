@@ -81,7 +81,7 @@ const [editLoading, setEditLoading] = useState(false);
     }
 
     try {
-      await axios.post("http://localhost:3000/api/add/student", formData, {
+      await axios.post("${import.meta.env.VITE_API_URL}/api/add/student", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -127,7 +127,7 @@ const [editLoading, setEditLoading] = useState(false);
 
     try {
       await axios.put(
-        `http://localhost:3000/api/student/${selectedStudent?.id}`,
+        `${import.meta.env.VITE_API_URL}/api/student/${selectedStudent?.id}`,
         formData,
         {
           headers: {
@@ -153,7 +153,7 @@ const [editLoading, setEditLoading] = useState(false);
     const token = localStorage.getItem("token");
 
     axios
-      .get("http://localhost:3000/api/courses", {
+      .get("${import.meta.env.VITE_API_URL}/api/courses", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -174,7 +174,7 @@ const [editLoading, setEditLoading] = useState(false);
 
     axios
       .get(
-        `http://localhost:3000/api/students?student=${searchText}&sort=${sort}&course=${course}`,
+        `${import.meta.env.VITE_API_URL}/api/students?student=${searchText}&sort=${sort}&course=${course}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -215,7 +215,7 @@ const [editLoading, setEditLoading] = useState(false);
       const token = localStorage.getItem("token");
 
       await axios.delete(
-        `http://localhost:3000/api/student/${selectedStudentId}`,
+        `${import.meta.env.VITE_API_URL}/api/student/${selectedStudentId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -382,7 +382,7 @@ const [editLoading, setEditLoading] = useState(false);
                 <TableRow key={student.id}>
                   <TableCell>
                     <Avatar
-                      // src={`http://localhost:3000/uploads/students/${student.image}`}
+                      // src={`${import.meta.env.VITE_API_URL}/uploads/students/${student.image}`}
                       // alt="image"
                       src={student.image}
                       alt="image"

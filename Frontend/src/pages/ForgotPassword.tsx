@@ -29,7 +29,7 @@ export default function ResetPassword() {
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
   try {
-    await axios.post("http://localhost:3000/api/forgot-password", data);
+    await axios.post("${import.meta.env.VITE_API_URL}/api/forgot-password", data);
 
     reset();
     toast.success("Password updated successfully");

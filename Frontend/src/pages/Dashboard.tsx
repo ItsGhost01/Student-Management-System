@@ -54,7 +54,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("token");
 
     axios
-      .get("http://localhost:3000/api/dashboard", {
+      .get("${import.meta.env.VITE_API_URL}/api/dashboard", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -71,7 +71,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("token");
 
     axios
-      .get("http://localhost:3000/api/dashboard/students-per-course", {
+      .get("${import.meta.env.VITE_API_URL}/api/dashboard/students-per-course", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -88,7 +88,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("token");
 
     axios
-      .get("http://localhost:3000/api/dashboard/recent-students", {
+      .get("${import.meta.env.VITE_API_URL}/api/dashboard/recent-students", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -207,7 +207,7 @@ export default function Dashboard() {
                 <TableRow key={student.id}>
                   <TableCell>
                     <Avatar
-                      // src={`http://localhost:3000/uploads/students/${student.image}`}
+                      // src={`${import.meta.env.VITE_API_URL}/uploads/students/${student.image}`}
                       src = {student.image}
                       alt={student.name}
                       sx={{ width: 45, height: 45 }}

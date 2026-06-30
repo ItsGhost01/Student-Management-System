@@ -35,7 +35,7 @@ export default function Login() {
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
   try {
-    const res = await axios.post("http://localhost:3000/api/login", {
+    const res = await axios.post("${import.meta.env.VITE_API_URL}/api/login", {
       email: data.email,
       password: data.password,
     });
