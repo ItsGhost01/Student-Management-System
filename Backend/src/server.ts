@@ -8,6 +8,7 @@ import authRoute from "./routes/auth.js"
 import userRoute from "./routes/user.js"
 import studentRoute from "./routes/student.js"
 import courseRoute from "./routes/course.js"
+import dashboardRoute from "./routes/dashboard.js"
 import cors from "cors";
 
 
@@ -33,7 +34,7 @@ app.use("/api", authRoute);
 app.use("/api", userRoute)
 app.use("/api", studentRoute)
 app.use("/api", courseRoute)
-
+app.use("/api", dashboardRoute)
 
 
 app.get('/', (req, res) => {

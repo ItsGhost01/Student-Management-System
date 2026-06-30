@@ -24,7 +24,7 @@ const courses = await Courses.create({
 } catch (error) {
     return res.status(500).json({
         success: false,
-        message: "failed to create product",
+        message: "failed to create course",
         error,
     });
 }
@@ -138,3 +138,37 @@ if(!deleted) {
     })
   }
 }
+
+export const updateCourse = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+
+    const course = (await Courses.findByPk(id)) as any;
+
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      });
+    }
+
+    await course.update({
+      title: req.body.title,
+      description: req.body.description,
+      duration: req.body.duration,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Course updated successfully",
+      data: course,
+    });
+  } catch (error: any) {
+    console.log(error);
+
+      return res.status(500).json({
+      success: false,
+      message: error.message || "Server Error",
+    });
+  }
+};

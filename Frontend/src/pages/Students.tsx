@@ -1,12 +1,13 @@
 import axios from "axios";
-import { Plus, Search, X } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm, type SubmitHandler } from "react-hook-form";
+
 import { toast } from "react-toastify";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import type { FormValues } from "../components/StudentFormModal";
 
 import {
   Table,
@@ -19,45 +20,47 @@ import {
   IconButton,
   Avatar,
 } from "@mui/material";
-import ConfirmDialog from "./ConfirmDialog";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { useSearchParams } from "react-router";
 
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-import StudentViewModal from "./StudentViewModal";
-
-// import { useState } from "react";
-
-type FormValues = {
-  name: string;
-  email: string;
-  age: number;
-  image: FileList;
-  courseId: number;
-};
+import StudentViewModal from "../components/StudentViewModal";
+import StudentFormModal from "../components/StudentFormModal";
+import type { SubmitHandler } from "react-hook-form";
 
 interface Course {
   id: number;
   title: string;
 }
 
+ interface Student {
+  id: number;
+  name: string;
+  email: string;
+  age: number;
+  image: string;
+  courseId: number;
+  // course: {
+  //   title: string;
+  // };
+}
+
+// import { useState } from "react";
+
 export default function Students() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [open, setOpen] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
+  const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [student, setStudents] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedStudent, setSelectedStudent] = useState<number | null>(null);
-  const [viewOpen, setViewOpen] = useState(false);
-
-  const form = useForm<FormValues>();
-  const {
-    register,
-    handleSubmit,
-    // reset,
-    formState: { errors },
-  } = form;
+  const [selectedStudent, setSelectedStudent] = useState<Student| null>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<number | null>(
+    null,
+  );
+  const [viewOpen, setViewOpen] = useState(false); 
 
   // Add Student
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
@@ -93,6 +96,48 @@ export default function Students() {
       }
     }
   };
+
+  // update student
+  // console.log(typeof selectedStudent);
+
+  const onUpdate: SubmitHandler<FormValues> = async (data) => {
+  if (!selectedStudent) return;
+
+  const token = localStorage.getItem("token");
+
+  const formData = new FormData();
+
+  formData.append("name", data.name);
+  formData.append("email", data.email);
+  formData.append("age", String(data.age));
+  formData.append("courseId", String(data.courseId));
+
+  if (data.image?.[0]) {
+    formData.append("image", data.image[0]);
+  }
+
+  try {
+    await axios.put(
+      `http://localhost:3000/api/student/${selectedStudent?.id}`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    toast.success("Student updated successfully");
+
+    setEditOpen(false);
+    setSelectedStudent(null);
+
+    fetchStudent();
+  } catch (error: any) {
+    toast.error(error.response?.data?.message || "Failed to update student");
+  }
+};
+
 
   const fetchCourse = async () => {
     const token = localStorage.getItem("token");
@@ -160,7 +205,7 @@ export default function Students() {
       const token = localStorage.getItem("token");
 
       await axios.delete(
-        `http://localhost:3000/api/student/${selectedStudent}`,
+        `http://localhost:3000/api/student/${selectedStudentId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -348,14 +393,20 @@ export default function Students() {
                     >
                       <VisibilityIcon />
                     </IconButton>
-                    <IconButton color="primary">
+                    <IconButton
+                      color="primary"
+                      onClick={() => {
+                        setSelectedStudent(student);
+                        setEditOpen(true);
+                      }}
+                    >
                       <EditIcon />
                     </IconButton>
 
                     <IconButton
                       color="error"
                       onClick={() => {
-                        setSelectedStudent(student.id);
+                        setSelectedStudentId(student.id);
                         setOpenModal(true);
                       }}
                     >
@@ -384,158 +435,27 @@ export default function Students() {
         onClose={() => setViewOpen(false)}
       />
 
-      {open && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white w-full max-w-lg rounded-xl p-6 shadow-lg">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xl font-semibold">Add Student</h2>
+      <StudentFormModal
+        open={open}
+        onClose={() => setOpen(false)}
+        onSubmit={onSubmit}
+        courses={courses}
+        title="Add Student"
+        submitText="Add Student"
+      />
 
-              <button onClick={() => setOpen(false)}>
-                <X />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {/* Name */}
-              <div>
-                <label className="block mb-1 font-medium">
-                  Name <span className="text-error">*</span>
-                </label>
-
-                <input
-                  {...register("name", {
-                    required: "Name is required",
-                  })}
-                  type="text"
-                  placeholder="John Doe"
-                  className={`w-full border rounded-lg px-3 py-2 ${
-                    errors.name ? "border-error" : "border-gray-300"
-                  }`}
-                />
-
-                {errors.name && (
-                  <p className="text-error text-sm mt-1">
-                    {errors.name.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Email */}
-              <div>
-                <label className="block mb-1 font-medium">
-                  Email <span className="text-error">*</span>
-                </label>
-
-                <input
-                  {...register("email", {
-                    required: "Email is required",
-                  })}
-                  type="email"
-                  placeholder="john@gmail.com"
-                  className={`w-full border rounded-lg px-3 py-2 ${
-                    errors.email ? "border-error" : "border-gray-300"
-                  }`}
-                />
-
-                {errors.email && (
-                  <p className="text-error text-sm mt-1">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Age */}
-              <div>
-                <label className="block mb-1 font-medium">
-                  Age <span className="text-error">*</span>
-                </label>
-
-                <input
-                  {...register("age", {
-                    required: "Age is required",
-                    valueAsNumber: true,
-                    min: {
-                      value: 1,
-                      message: "Age must be greater than 0",
-                    },
-                  })}
-                  type="number"
-                  min={0}
-                  placeholder="20"
-                  className={`w-full border rounded-lg px-3 py-2 ${
-                    errors.age ? "border-error" : "border-gray-300"
-                  }`}
-                />
-
-                {errors.age && (
-                  <p className="text-error text-sm mt-1">
-                    {errors.age.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Image URL */}
-              <div>
-                <label className="block mb-1 font-medium">Upload Image</label>
-
-                <input
-                  {...register("image")}
-                  type="file"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                />
-              </div>
-
-              {/* Course */}
-              <div>
-                <label className="block mb-1 font-medium">
-                  Course <span className="text-error">*</span>
-                </label>
-
-                <select
-                  {...register("courseId", {
-                    required: "Course is required",
-                    valueAsNumber: true,
-                  })}
-                  className={`w-full border rounded-lg px-3 py-2 ${
-                    errors.courseId ? "border-error" : "border-gray-300"
-                  }`}
-                >
-                  <option value="">Select Course</option>
-
-                  {courses.map((course) => (
-                    <option key={course.id} value={course.id}>
-                      {course.title}
-                    </option>
-                  ))}
-                </select>
-
-                {errors.courseId && (
-                  <p className="text-error text-sm mt-1">
-                    {errors.courseId.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex justify-end gap-3 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="px-4 py-2 border rounded-lg"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-primary text-white rounded-lg"
-                >
-                  Add Student
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <StudentFormModal
+        open={editOpen}
+        onClose={() => {
+          setEditOpen(false);
+          setSelectedStudent(null);
+        }}
+        onSubmit={onUpdate}
+        courses={courses}
+        student={selectedStudent}
+        title="Edit Student"
+        submitText="Update Student"
+      />
     </div>
   );
 }

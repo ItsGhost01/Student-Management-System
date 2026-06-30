@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Search, X } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Plus, Search } from "lucide-react";
 import type { SubmitHandler } from "react-hook-form";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -18,31 +17,32 @@ import {
   Paper,
   IconButton,
 } from "@mui/material";
-import ConfirmDialog from "./ConfirmDialog";
+
+interface Course {
+  id: number;
+  title: string;
+  description: string;
+  duration: number;
+}
+
+import ConfirmDialog from "../components/ConfirmDialog";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useSearchParams } from "react-router";
+import CourseFormModal from "../components/CourseFormModal";
+import type { FormValues } from "../components/CourseFormModal";
 
 export default function Courses() {
   const [courses, setCourses] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(true);
+
   const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
-  type FormValues = {
-    title: string;
-    description: string;
-    duration: string;
-  };
 
-  const form = useForm<FormValues>();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = form;
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     const token = localStorage.getItem("token");
@@ -97,7 +97,7 @@ const handleDelete = async () => {
     const token = localStorage.getItem("token");
 
     await axios.delete(
-      `http://localhost:3000/api/courses/${selectedUserId}`,
+      `http://localhost:3000/api/courses/${selectedCourseId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -107,7 +107,7 @@ const handleDelete = async () => {
 
     toast.success("Course deleted successfully");
     setOpenModal(false);
-    setSelectedUserId(null);
+    setSelectedCourseId(null);
 
     await fetchCourses();
   } catch (error: any) {
@@ -116,6 +116,39 @@ const handleDelete = async () => {
     error.response?.data?.message || "Failed to delete course."
   );
   }
+};
+
+const onUpdate: SubmitHandler<FormValues> = async (data) => {
+ if(!selectedCourse) return;
+ 
+ const token = localStorage.getItem("token");
+
+ try {
+  await axios.put(`http://localhost:3000/api/courses/${selectedCourse.id}`,
+{
+  title: data.title,
+  description: data.description,
+  duration: data.duration,
+},
+{
+  headers: {
+          Authorization: `Bearer ${token}`,
+        },
+
+      },
+    );   
+
+     toast.success("Course updated successfully");
+
+    setOpenEdit(false);
+    setSelectedCourse(null);
+    await fetchCourses();
+  } catch (error: any) {
+    toast.error(
+      error.response?.data.message || "failed to updated Course"
+    );
+  }
+
 };
 
   return (
@@ -254,14 +287,19 @@ const handleDelete = async () => {
                   </TableCell>
 
                   <TableCell align="center">
-                    <IconButton color="primary">
+                    <IconButton color="primary"
+                    onClick={() => {
+                      setSelectedCourse(course)
+                      setOpenEdit(true);
+                    }}
+                    >
                       <EditIcon />
                     </IconButton>
 
                     <IconButton
                       color="error"
                       onClick={() => {
-                        setSelectedUserId(course.id);
+                        setSelectedCourseId(course.id);
                         setOpenModal(true);
                       }}
                     >
@@ -283,116 +321,26 @@ const handleDelete = async () => {
         color="error"
       />
       {/* Modal */}
-      {open && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white w-full max-w-lg rounded-xl p-4 sm:p-6 shadow-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xl font-semibold">Add Course</h2>
 
-              <button onClick={() => setOpen(false)}>
-                <X />
-              </button>
-            </div>
+  <CourseFormModal
+        open={open}
+        onClose={() => setOpen(false)}
+        onSubmit={onSubmit}
+        title="Add Student"
+        submitText="Add Student"
+      />
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {/* Title */}
-              <div>
-                <label className="block mb-1 font-medium">
-                  Course Title <span className="text-error">*</span>
-                </label>
-
-                <input
-                  {...register("title", {
-                    required: "Title is Required",
-                  })}
-                  type="text"
-                  placeholder="Node.js Fundamentals"
-                  className={`w-full border rounded-lg px-3 py-2 transition focus:outline-none focus:ring-2 ${
-                    errors.title
-                      ? "border-error focus:ring-error"
-                      : "border-gray-300 focus:ring-primary"
-                  }`}
-                />
-
-                {errors.title && (
-                  <p className="text-error text-sm mt-1">
-                    {errors.title.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block mb-1 font-medium">
-                  Description <span className="text-error">*</span>
-                </label>
-
-                <textarea
-                  {...register("description", {
-                    required: "Description is required",
-                  })}
-                  rows={4}
-                  className={`w-full border rounded-lg px-3 py-2 transition focus:outline-none focus:ring-2 ${
-                    errors.description
-                      ? "border-error focus:ring-error"
-                      : "border-gray-300 focus:ring-primary"
-                  }`}
-                />
-
-                {errors.description && (
-                  <p className="text-error text-sm mt-1">
-                    {errors.description.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Duration */}
-              <div>
-                <label className="block mb-1 font-medium">
-                  Duration <span className="text-error">*</span>
-                </label>
-
-                <input
-                  {...register("duration", {
-                    required: "Duration is required",
-                  })}
-                  type="text"
-                  placeholder="e.g. 8 Weeks"
-                  className={`w-full border rounded-lg px-3 py-2 transition focus:outline-none focus:ring-2 ${
-                    errors.duration
-                      ? "border-error focus:ring-error"
-                      : "border-gray-300 focus:ring-primary"
-                  }`}
-                />
-
-                {errors.duration && (
-                  <p className="text-error text-sm mt-1">
-                    {errors.duration.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Buttons */}
-              <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="w-full sm:w-auto px-4 py-2 border rounded-lg"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  className="w-full sm:w-auto px-4 py-2 bg-primary text-white rounded-lg"
-                >
-                  Add Course
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <CourseFormModal
+             open={openEdit}
+             onClose={() => {
+               setOpenEdit(false);
+               setSelectedCourse(null);
+             }}
+             onSubmit={onUpdate}
+             course={selectedCourse}
+             title="Edit Student"
+             submitText="Update Student"
+           />
     </>
   );
 }

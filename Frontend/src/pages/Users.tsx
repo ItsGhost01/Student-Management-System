@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
-import ConfirmDialog from "./ConfirmDialog";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { toast } from "react-toastify";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 

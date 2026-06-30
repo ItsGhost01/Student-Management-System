@@ -1,5 +1,5 @@
 import express from "express";
-import { addStudent, deleteStudent, getStudent, getStudentById } from "../controllers/student.js";
+import { addStudent, deleteStudent, getStudent, getStudentById, updateStudent } from "../controllers/student.js";
 import { checkAuthentication } from "../middlewares/CheckAuthentication.js";
 import multer from "multer";
 import path from "path";
@@ -25,5 +25,6 @@ router.post("/add/student", checkAuthentication, upload.single("image"), addStud
 router.get("/students", checkAuthentication, getStudent);
 router.get("/student/:id", checkAuthentication, getStudentById);
 router.delete("/student/:id", checkAuthentication, deleteStudent);
+router.put("/student/:id", checkAuthentication, upload.single("image"), updateStudent);
 
 export default router;

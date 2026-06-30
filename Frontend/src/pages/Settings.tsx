@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { login } from "../redux/features/userSlice";
 import { Eye, EyeClosed } from "lucide-react";
 import { useState } from "react";
-import ConfirmDialog from "./ConfirmDialog";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 type FormValues = {
   firstName: string;

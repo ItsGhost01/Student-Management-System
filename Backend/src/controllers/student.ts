@@ -2,6 +2,8 @@ import type { Request, Response } from "express";
 import Student from "../models/Student.js";
 import { Op } from "sequelize";
 import Courses from "../models/Course.js";
+import fs from "fs";
+import path from "path";
 
 export const addStudent = async (req: Request, res: Response) => {
   try {
@@ -126,28 +128,77 @@ export const getStudentById = async (req: Request, res: Response) => {
   }
 };
 
-
 export const deleteStudent = async (req: Request, res: Response) => {
   try {
     const studentId = req.params.id;
 
-const deleted = await Student.destroy({
-  where: {id: studentId}
-})
+    const deleted = await Student.destroy({
+      where: { id: studentId },
+    });
 
-if(!deleted) {
-  return res.status(404).json({
-    message: "Student Id not found",
-  })
-} else {
-  return res.status(200).json({
-    message: "Student Deleted Succesfully"
-  })
-}
-  } catch(error){
+    if (!deleted) {
+      return res.status(404).json({
+        message: "Student Id not found",
+      });
+    } else {
+      return res.status(200).json({
+        message: "Student Deleted Succesfully",
+      });
+    }
+  } catch (error) {
     console.log(error);
     return res.status(500).json({
-      message: "server error"
-    })
+      message: "server error",
+    });
   }
-}
+};
+
+export const updateStudent = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+
+    const student = (await Student.findByPk(id)) as any;
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    // Delete old image if new image uploaded
+    if (req.file && student.image) {
+      const imagePath = path.join(
+        __dirname,
+        "../../uploads/students",
+        student.image,
+      );
+
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+
+    await student.update({
+      name: req.body.name,
+      email: req.body.email,
+      age: req.body.age,
+      courseId: req.body.courseId,
+      image: req.file ? req.file.filename : student.image,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Student updated successfully",
+      data: student,
+    });
+  } catch (error: any) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+      error,
+    });
+  }
+};

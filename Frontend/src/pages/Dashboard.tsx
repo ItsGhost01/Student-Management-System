@@ -1,9 +1,92 @@
 import { useSelector } from "react-redux";
 import type { RootState } from "../redux/store";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+
+import { Doughnut } from "react-chartjs-2";
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+interface DashboardInfo {
+  totalStudents: number;
+  totalCourses: number;
+  totalUser: number;
+  totalStaff: number;
+  totalAdmins: number;
+}
+
+interface Student {
+  id: number;
+  name: string;
+  email: string;
+  image: string;
+  createdAt: string;
+  course: {
+    title: string;
+  };
+}
 
 export default function Dashboard() {
+  const [info, setInfo] = useState<DashboardInfo | null>(null);
+  const [recentStudent, setRecentStudent] = useState<Student | null>(null);
+
   const reduxUser = useSelector((state: RootState) => state.user.value);
+
+  const fetchDashboardInfo = async () => {
+    const token = localStorage.getItem("token");
+
+    axios
+      .get("http://localhost:3000/api/dashboard", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        setInfo(res.data.data);
+      })
+      .catch((error: any) => {
+        console.error(error);
+      });
+  };
+
+  const fetchRecentStudent = async () => {
+    const token = localStorage.getItem("token");
+
+    axios
+      .get("http://localhost:3000/api/dashboard/recent-students", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        setRecentStudent(res.data.data);
+      })
+      .catch((error: any) => {
+        console.error(error);
+      });
+  };
+
+  useEffect(() => {
+    fetchDashboardInfo();
+    fetchRecentStudent();
+  }, []);
+
+  const roleData = {
+    labels: ["Staff", "Admins"],
+    datasets: [
+      {
+        label: "Users",
+        data: [info?.totalStaff, info?.totalAdmins],
+        backgroundColor: [
+          "#3B82F6", // Blue
+          "#F59E0B", // Amber
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
 
   return (
     <div className="space-y-6">
@@ -24,7 +107,7 @@ export default function Dashboard() {
         <div className="relative flex flex-col-reverse lg:flex-row items-center justify-between gap-4">
           {/* Left Content */}
           <div className="flex-1">
-            <h2 className="text-white text-4xl font-bold leading-tight">
+            <h2 className="text-white text-3xl md-text- font-bold leading-tight">
               Welcome to StudentHub
             </h2>
 
@@ -53,24 +136,27 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         <div className="bg-white rounded-2xl p-6 shadow-sm border">
           <p className="text-gray-500 text-sm">Total Students</p>
-          <h3 className="text-3xl font-bold mt-2">120</h3>
+          <h3 className="text-3xl font-bold mt-2">{info?.totalStudents}</h3>
         </div>
 
         <div className="bg-white rounded-2xl p-6 shadow-sm border">
           <p className="text-gray-500 text-sm">Total Courses</p>
-          <h3 className="text-3xl font-bold mt-2">15</h3>
+          <h3 className="text-3xl font-bold mt-2">{info?.totalCourses}</h3>
         </div>
 
         <div className="bg-white rounded-2xl p-6 shadow-sm border">
           <p className="text-gray-500 text-sm">Active Users</p>
-          <h3 className="text-3xl font-bold mt-2">8</h3>
+          <h3 className="text-3xl font-bold mt-2">{info?.totalUser}</h3>
         </div>
-
-        <div className="bg-white rounded-2xl p-6 shadow-sm border">
-          <p className="text-gray-500 text-sm">Departments</p>
-          <h3 className="text-3xl font-bold mt-2">5</h3>
-        </div>
+      
       </div>
+        <div className="bg-white rounded-xl shadow p-5">
+          <h2 className="text-lg font-semibold mb-4">User Roles</h2>
+
+          <div className="w-64 mx-auto">
+            <Doughnut data={roleData} />
+          </div>
+        </div>
     </div>
   );
 }

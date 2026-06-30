@@ -12,7 +12,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/features/userSlice";
-import ConfirmDialog from "../../pages/ConfirmDialog";
+import ConfirmDialog from "../ConfirmDialog";
 import type { RootState } from "../../redux/store";
 
 export default function DashboardLayout() {
