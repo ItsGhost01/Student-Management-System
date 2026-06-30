@@ -25,7 +25,6 @@ import Forbidden from "./pages/Forbidden";
 
 
 
-
 const router = createBrowserRouter([
   
   {

@@ -1,6 +1,10 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+
+import "./config/cloudinary.js";
+
+
 import express from "express";
 import sequelize from "./connections/database.js";
 import "./models/Index.js"
@@ -12,8 +16,9 @@ import dashboardRoute from "./routes/dashboard.js"
 import cors from "cors";
 
 
+
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use("/uploads",express.static('uploads')); // for images
 

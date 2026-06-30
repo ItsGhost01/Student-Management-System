@@ -1,7 +1,9 @@
 import type { Request, Response } from "express";
 import { Op, Sequelize } from "sequelize";
 import User from "../models/User.js";
+import cloudinary from "../config/cloudinary.js";
 // import User from "../models/User.js";
+import fs from "fs";
 
 export const updateProfile = async (req: Request, res: Response) => {
 
@@ -15,10 +17,24 @@ export const updateProfile = async (req: Request, res: Response) => {
     if (email) req.user.email = email;
 
  
-if (req.file) {
-      req.user.image = `uploads/users/${req.file.filename}`;
-    }
+// if (req.file) {
+//       req.user.image = `uploads/users/${req.file.filename}`;
+//     }
 
+let imageUrl = "";
+
+if (req.file?.path) {
+  const result = await cloudinary.uploader.upload(req.file.path, {
+    folder: "users",
+  });
+
+  imageUrl = result.secure_url;
+  fs.unlinkSync(req.file.path);
+}
+
+ //  IMPORTANT: SAVE IMAGE TO USER
+    req.user.image = imageUrl;
+    
     await req.user.save();
 
     return res.status(200).json({

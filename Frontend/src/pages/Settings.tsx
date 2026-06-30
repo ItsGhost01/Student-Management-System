@@ -160,13 +160,14 @@ export default function Settings() {
               <div className="w-24 h-24 rounded-full flex items-center justify-center overflow-hidden bg-primary">
                 {reduxUser?.image ? (
                   <img
-                    src={`http://localhost:3000/${reduxUser.image}`}
+                    // src={`http://localhost:3000/${reduxUser.image}`}
+                    src={reduxUser?.image}
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <span className="text-2xl font-semibold text-white">
-                    {reduxUser?.firstName?.[0] ?? "U"}
+                    {reduxUser?.firstName?.[0] ?? ""}
                     {reduxUser?.lastName?.[0] ?? ""}
                   </span>
                 )}

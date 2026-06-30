@@ -8,7 +8,6 @@ export type FormValues = {
   duration: string;
 };
 
-
 type CourseFormModalProps = {
   open: boolean;
   onClose: () => void;
@@ -58,7 +57,7 @@ export default function CourseFormModal({
       <div className="bg-white w-full max-w-lg rounded-xl p-6 shadow-xl">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">{title}</h2>
+          <h2 className="text-2xl font-bold">{title}</h2>
 
           <button
             type="button"
@@ -83,40 +82,44 @@ export default function CourseFormModal({
                 required: "title is required",
               })}
               placeholder="Enter course title"
-              className={`w-full border rounded-lg px-3 py-2 ${
-                errors.title ? "border-red-500" : "border-gray-300"
+              className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${
+                errors.title
+                  ? "border-error focus:ring-error"
+                  : "border-gray-300 focus:ring-primary"
               }`}
             />
 
             {errors.title && (
-              <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.title.message}
+              </p>
             )}
           </div>
 
-            {/* Description */}
-              <div>
-                <label className="block mb-1 font-medium">
-                  Description <span className="text-error">*</span>
-                </label>
+          {/* Description */}
+          <div>
+            <label className="block mb-1 font-medium">
+              Description <span className="text-error">*</span>
+            </label>
 
-                <textarea
-                  {...register("description", {
-                    required: "Description is required",
-                  })}
-                  rows={4}
-                  className={`w-full border rounded-lg px-3 py-2 transition focus:outline-none focus:ring-2 ${
-                    errors.description
-                      ? "border-error focus:ring-error"
-                      : "border-gray-300 focus:ring-primary"
-                  }`}
-                />
+            <textarea
+              {...register("description", {
+                required: "Description is required",
+              })}
+              rows={4}
+              className={`w-full border rounded-lg px-3 py-2 transition focus:outline-none focus:ring-2 ${
+                errors.description
+                  ? "border-error focus:ring-error"
+                  : "border-gray-300 focus:ring-primary"
+              }`}
+            />
 
-                {errors.description && (
-                  <p className="text-error text-sm mt-1">
-                    {errors.description.message}
-                  </p>
-                )}
-              </div>
+            {errors.description && (
+              <p className="text-error text-sm mt-1">
+                {errors.description.message}
+              </p>
+            )}
+          </div>
 
           {/* Duration */}
           <div>
@@ -129,13 +132,17 @@ export default function CourseFormModal({
                 required: "duration is required",
               })}
               placeholder="Enter course duration"
-              className={`w-full border rounded-lg px-3 py-2 ${
-                errors.duration ? "border-red-500" : "border-gray-300"
+              className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${
+                errors.duration
+                  ? "border-error focus:ring-error"
+                  : "border-gray-300 focus:ring-primary"
               }`}
             />
 
             {errors.duration && (
-              <p className="text-red-500 text-sm mt-1">{errors.duration.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.duration.message}
+              </p>
             )}
           </div>
 

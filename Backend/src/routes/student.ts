@@ -1,25 +1,28 @@
 import express from "express";
 import { addStudent, deleteStudent, getStudent, getStudentById, updateStudent } from "../controllers/student.js";
 import { checkAuthentication } from "../middlewares/CheckAuthentication.js";
-import multer from "multer";
-import path from "path";
+import upload from "../middlewares/upload.js";
 
 const router = express.Router();
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/students");
-  },
-  filename: function (req, file, cb) {
-    const extension = path.extname(file.originalname);
-    const uniqueSuffix =
-      Date.now() + "-" + Math.round(Math.random() * 1e9) + extension;
+ // Multer setup
+// import multer from "multer";
+// import path from "path";
 
-    cb(null, file.fieldname + "-" + uniqueSuffix);
-  },
-});
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "uploads/students");
+//   },
+//   filename: function (req, file, cb) {
+//     const extension = path.extname(file.originalname);
+//     const uniqueSuffix =
+//       Date.now() + "-" + Math.round(Math.random() * 1e9) + extension;
 
-const upload = multer({ storage });
+//     cb(null, file.fieldname + "-" + uniqueSuffix);
+//   },
+// });
+
+// const upload = multer({ storage });
 
 router.post("/add/student", checkAuthentication, upload.single("image"), addStudent);
 router.get("/students", checkAuthentication, getStudent);

@@ -1,11 +1,23 @@
 import { Sequelize } from "sequelize";
 
- const sequelize = new Sequelize(
-  "postgres://postgres:postgres@localhost:5439/studentmanagementsystem",
-  {
-    logging: false,
-  }
-);
+//  const sequelize = new Sequelize(
+//  process.env.LOCALDATABASE_URL!,
+//   {
+//     logging: false,
+//   }
+// );
+
+const sequelize = process.env.NODE_ENV === "production"
+  ? new Sequelize(process.env.DATABASE_URL!, {
+      dialect: "postgres",
+      logging: false,
+    })
+  : new Sequelize(
+      process.env.LOCALDATABASE_URL!,{
+        dialect: "postgres",
+        logging: false,
+      }
+    );
 
 export async function connectDB() {
   try {

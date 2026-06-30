@@ -15,8 +15,6 @@ interface Course {
   title: string;
 }
 
-
-
 type StudentFormModalProps = {
   open: boolean;
   onClose: () => void;
@@ -25,6 +23,7 @@ type StudentFormModalProps = {
   student?: any;
   title: string;
   submitText: string;
+  loading?: boolean;
 };
 
 export default function StudentFormModal({
@@ -35,6 +34,7 @@ export default function StudentFormModal({
   student,
   title,
   submitText,
+  loading = false,
 }: StudentFormModalProps) {
   const {
     register,
@@ -95,8 +95,10 @@ export default function StudentFormModal({
                 required: "Name is required",
               })}
               placeholder="John Doe"
-              className={`w-full border rounded-lg px-3 py-2 ${
-                errors.name ? "border-red-500" : "border-gray-300"
+              className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${
+                errors.name
+                  ? "border-red-500 focus:ring-error"
+                  : "border-gray-300  focus:ring-primary"
               }`}
             />
 
@@ -117,8 +119,10 @@ export default function StudentFormModal({
                 required: "Email is required",
               })}
               placeholder="john@gmail.com"
-              className={`w-full border rounded-lg px-3 py-2 ${
-                errors.email ? "border-red-500" : "border-gray-300"
+              className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${
+                errors.email
+                  ? "border-red-500  focus:ring-error"
+                  : "border-gray-300  focus:ring-primary"
               }`}
             />
 
@@ -145,8 +149,10 @@ export default function StudentFormModal({
                   message: "Age must be greater than 0",
                 },
               })}
-              className={`w-full border rounded-lg px-3 py-2 ${
-                errors.age ? "border-red-500" : "border-gray-300"
+              className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2  ${
+                errors.age
+                  ? "border-red-500  focus:ring-error"
+                  : "border-gray-300  focus:ring-primary"
               }`}
             />
 
@@ -178,8 +184,10 @@ export default function StudentFormModal({
                 required: "Course is required",
                 valueAsNumber: true,
               })}
-              className={`w-full border rounded-lg px-3 py-2 ${
-                errors.courseId ? "border-red-500" : "border-gray-300"
+              className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2  ${
+                errors.courseId
+                  ? "border-red-500  focus:ring-error"
+                  : "border-gray-300  focus:ring-primary"
               }`}
             >
               <option value="">Select Course</option>
@@ -213,9 +221,18 @@ export default function StudentFormModal({
 
             <button
               type="submit"
-              className="px-5 py-2 bg-primary text-white rounded-lg hover:opacity-90"
+              disabled={loading}
+              className="px-5 py-2 bg-primary text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {submitText}
+              {loading ? (
+                <span className="animate-pulse">
+                  {submitText === "Update Student"
+                    ? "Updating..."
+                    : "Adding..."}
+                </span>
+              ) : (
+                submitText
+              )}
             </button>
           </div>
         </form>

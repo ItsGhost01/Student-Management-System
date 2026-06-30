@@ -197,9 +197,8 @@ export default function Dashboard() {
                 <TableCell>Avatar</TableCell>
                 <TableCell>Student ID</TableCell>
                 <TableCell>Name</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Age</TableCell>
                 <TableCell>Course</TableCell>
+                <TableCell>CreatedAt</TableCell>
               </TableRow>
             </TableHead>
 
@@ -208,7 +207,8 @@ export default function Dashboard() {
                 <TableRow key={student.id}>
                   <TableCell>
                     <Avatar
-                      src={`http://localhost:3000/uploads/students/${student.image}`}
+                      // src={`http://localhost:3000/uploads/students/${student.image}`}
+                      src = {student.image}
                       alt={student.name}
                       sx={{ width: 45, height: 45 }}
                     />
@@ -216,9 +216,8 @@ export default function Dashboard() {
 
                   <TableCell>{student.studentId}</TableCell>
                   <TableCell>{student.name}</TableCell>
-                  <TableCell>{student.email}</TableCell>
-                  <TableCell>{student.age}</TableCell>
                   <TableCell>{student.course?.title}</TableCell>
+                   <TableCell>{new Date(student.createdAt).toLocaleDateString()}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

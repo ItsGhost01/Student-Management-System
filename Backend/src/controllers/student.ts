@@ -2,12 +2,14 @@ import type { Request, Response } from "express";
 import Student from "../models/Student.js";
 import { Op } from "sequelize";
 import Courses from "../models/Course.js";
+import cloudinary from "../config/cloudinary.js";
 import fs from "fs";
-import path from "path";
 
 export const addStudent = async (req: Request, res: Response) => {
   try {
-    // Check if email already exists first
+   console.log("REQ BODY:", req.body);
+    console.log("REQ FILE:", req.file)
+
     const existingStudent = await Student.findOne({
       where: { email: req.body.email },
     });
@@ -19,27 +21,42 @@ export const addStudent = async (req: Request, res: Response) => {
       });
     }
 
-    const students = await Student.create({
+    console.log("CLOUDINARY:", cloudinary.config());
+
+let imageUrl = "";
+
+if (req.file?.path) {
+  const result = await cloudinary.uploader.upload(req.file.path, {
+    folder: "students",
+  });
+
+  imageUrl = result.secure_url;
+
+  // ✅ delete local file AFTER upload
+  fs.unlinkSync(req.file.path);
+}
+
+    const student = await Student.create({
       name: req.body.name,
       email: req.body.email,
       age: req.body.age,
-      image: req.file?.filename,
+      image: imageUrl,
       courseId: req.body.courseId,
     });
 
     return res.status(201).json({
       success: true,
-      message: "Student Added successfully",
-      students,
+      data: student,
     });
-  } catch (error) {
+  } catch (error: any) {
+    console.log("ERROR:", error);
     return res.status(500).json({
       success: false,
-      message: "failed to add student",
-      error,
+      message: error.message,
     });
   }
 };
+
 
 export const getStudent = async (req: Request, res: Response) => {
   try {
@@ -166,25 +183,28 @@ export const updateStudent = async (req: Request, res: Response) => {
       });
     }
 
-    // Delete old image if new image uploaded
-    if (req.file && student.image) {
-      const imagePath = path.join(
-        __dirname,
-        "../../uploads/students",
-        student.image,
-      );
+    let imageUrl = student.image;
 
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
-    }
+    // if new image uploaded → upload to cloudinary
+
+ if (req.file?.path) {
+  const result = await cloudinary.uploader.upload(req.file.path, {
+    folder: "students",
+  });
+
+  imageUrl = result.secure_url;
+
+    // ✅ delete local file AFTER upload
+  fs.unlinkSync(req.file.path);
+} 
+ 
 
     await student.update({
       name: req.body.name,
       email: req.body.email,
       age: req.body.age,
       courseId: req.body.courseId,
-      image: req.file ? req.file.filename : student.image,
+      image: imageUrl, //req.file ? req.file.filename : student.image,
     });
 
     return res.status(200).json({

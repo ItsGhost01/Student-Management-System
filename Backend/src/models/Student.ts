@@ -58,17 +58,16 @@ const Students = sequelize.define(
 
 // 👇 PUT THIS HERE (after model definition)
 Students.beforeCreate(async (student: any) => {
-  const count = await Students.count();
-
-  const number = String(count + 1).padStart(2, "0");
-
   const date = new Date();
+
   const yymmdd =
     String(date.getFullYear()).slice(2) +
     String(date.getMonth() + 1).padStart(2, "0") +
     String(date.getDate()).padStart(2, "0");
 
-  student.studentId = `STU-${yymmdd}-${number}`;
+  const random = Math.floor(1000 + Math.random() * 9000);
+
+  student.studentId = `STU-${yymmdd}-${random}`;
 });
 
 export default Students;

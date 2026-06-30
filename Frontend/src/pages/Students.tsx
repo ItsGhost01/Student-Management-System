@@ -33,7 +33,7 @@ interface Course {
   title: string;
 }
 
- interface Student {
+interface Student {
   id: number;
   name: string;
   email: string;
@@ -56,14 +56,17 @@ export default function Students() {
   const [loading, setLoading] = useState(true);
   const [student, setStudents] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedStudent, setSelectedStudent] = useState<Student| null>(null);
-  const [selectedStudentId, setSelectedStudentId] = useState<number | null>(
-    null,
-  );
-  const [viewOpen, setViewOpen] = useState(false); 
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
+  const [viewOpen, setViewOpen] = useState(false);
+
+const [addLoading, setAddLoading] = useState(false);
+const [editLoading, setEditLoading] = useState(false);
 
   // Add Student
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
+      setAddLoading(true);
+
     const token = localStorage.getItem("token");
 
     const formData = new FormData();
@@ -92,52 +95,59 @@ export default function Students() {
       if (error.response?.status === 409) {
         toast.error(error.response.data.message);
       } else {
-        toast.error("failed to add student");
+        console.log("FULL ERROR:", error);
+         toast.error(error.response?.data?.message || "Failed to update student");
       }
     }
+    finally {
+    setAddLoading(false);
+  }
+ 
   };
 
   // update student
   // console.log(typeof selectedStudent);
 
   const onUpdate: SubmitHandler<FormValues> = async (data) => {
-  if (!selectedStudent) return;
+    setEditLoading(true);
+    if (!selectedStudent) return;
 
-  const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
-  const formData = new FormData();
+    const formData = new FormData();
 
-  formData.append("name", data.name);
-  formData.append("email", data.email);
-  formData.append("age", String(data.age));
-  formData.append("courseId", String(data.courseId));
+    formData.append("name", data.name);
+    formData.append("email", data.email);
+    formData.append("age", String(data.age));
+    formData.append("courseId", String(data.courseId));
 
-  if (data.image?.[0]) {
-    formData.append("image", data.image[0]);
-  }
+    if (data.image?.[0]) {
+      formData.append("image", data.image[0]);
+    }
 
-  try {
-    await axios.put(
-      `http://localhost:3000/api/student/${selectedStudent?.id}`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+    try {
+      await axios.put(
+        `http://localhost:3000/api/student/${selectedStudent?.id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      }
-    );
+      );
 
-    toast.success("Student updated successfully");
+      toast.success("Student updated successfully");
 
-    setEditOpen(false);
-    setSelectedStudent(null);
+      setEditOpen(false);
+      setSelectedStudent(null);
 
-    fetchStudent();
-  } catch (error: any) {
-    toast.error(error.response?.data?.message || "Failed to update student");
+      fetchStudent();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to update student");
+    }   finally {
+    setEditLoading(false);
   }
-};
-
+  };
 
   const fetchCourse = async () => {
     const token = localStorage.getItem("token");
@@ -372,7 +382,9 @@ export default function Students() {
                 <TableRow key={student.id}>
                   <TableCell>
                     <Avatar
-                      src={`http://localhost:3000/uploads/students/${student.image}`}
+                      // src={`http://localhost:3000/uploads/students/${student.image}`}
+                      // alt="image"
+                      src={student.image}
                       alt="image"
                       sx={{ width: 50, height: 50 }}
                     />
@@ -442,6 +454,7 @@ export default function Students() {
         courses={courses}
         title="Add Student"
         submitText="Add Student"
+         loading={addLoading}
       />
 
       <StudentFormModal
@@ -455,6 +468,7 @@ export default function Students() {
         student={selectedStudent}
         title="Edit Student"
         submitText="Update Student"
+         loading={editLoading}
       />
     </div>
   );
