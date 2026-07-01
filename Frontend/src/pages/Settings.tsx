@@ -72,7 +72,7 @@ export default function Settings() {
       }
 
       const response = await axios.put(
-        "${import.meta.env.VITE_API_URL}/api/profile",
+        `${import.meta.env.VITE_API_URL}/api/profile`,
         formData,
         {
           headers: {
@@ -98,7 +98,7 @@ export default function Settings() {
 
     try {
       await axios.put(
-        "${import.meta.env.VITE_API_URL}/api/change-password",
+        `${import.meta.env.VITE_API_URL}/api/change-password`,
         {
           currentPassword: data.currentPassword,
           newPassword: data.newPassword,

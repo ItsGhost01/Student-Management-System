@@ -81,7 +81,7 @@ const [editLoading, setEditLoading] = useState(false);
     }
 
     try {
-      await axios.post("${import.meta.env.VITE_API_URL}/api/add/student", formData, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/add/student`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -153,7 +153,7 @@ const [editLoading, setEditLoading] = useState(false);
     const token = localStorage.getItem("token");
 
     axios
-      .get("${import.meta.env.VITE_API_URL}/api/courses", {
+      .get(`${import.meta.env.VITE_API_URL}/api/courses`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

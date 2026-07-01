@@ -48,7 +48,7 @@ export default function Courses() {
     const token = localStorage.getItem("token");
 
     try {
-      await axios.post("${import.meta.env.VITE_API_URL}/api/add/course", data, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/add/course`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

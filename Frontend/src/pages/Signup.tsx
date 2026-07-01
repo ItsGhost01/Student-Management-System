@@ -32,7 +32,7 @@ export default function Signup() {
 
  const onSubmit: SubmitHandler<FormValues> = async (data) => {
   try {
-    await axios.post("${import.meta.env.VITE_API_URL}/api/signup", {
+    await axios.post(`${import.meta.env.VITE_API_URL}/api/signup`, {
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,

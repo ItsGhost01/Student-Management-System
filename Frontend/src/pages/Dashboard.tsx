@@ -54,7 +54,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("token");
 
     axios
-      .get("${import.meta.env.VITE_API_URL}/api/dashboard", {
+      .get(`${import.meta.env.VITE_API_URL}/api/dashboard`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -71,7 +71,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("token");
 
     axios
-      .get("${import.meta.env.VITE_API_URL}/api/dashboard/students-per-course", {
+      .get(`${import.meta.env.VITE_API_URL}/api/dashboard/students-per-course`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -88,7 +88,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("token");
 
     axios
-      .get("${import.meta.env.VITE_API_URL}/api/dashboard/recent-students", {
+      .get(`${import.meta.env.VITE_API_URL}/api/dashboard/recent-students`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
