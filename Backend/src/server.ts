@@ -24,7 +24,8 @@ app.use("/uploads",express.static('uploads')); // for images
 
 app.use(
   cors({
-    origin: "https://6a445a488786d35e1e8ea0d3--studentthub.netlify.app",  // "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
+    credentials: true,  // "http://localhost:5173",
   })
 );
 
