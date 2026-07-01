@@ -7,9 +7,9 @@ import fs from "fs";
 
 export const addStudent = async (req: Request, res: Response) => {
   try {
-console.log("BODY:", req.body);
-console.log("FILE:", req.file);
-console.log("Cloudinary:", cloudinary.config());
+// console.log("BODY:", req.body);
+// console.log("FILE:", req.file);
+
 
     const existingStudent = await Student.findOne({
       where: { email: req.body.email },
