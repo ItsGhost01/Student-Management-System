@@ -41,7 +41,7 @@ export default function StudentViewModal({
 
           {/* Square Image */}
           <img
-            src={`${import.meta.env.VITE_API_URL}${student.image}`}
+            src={student.image}
             alt={student.name}
             className="w-40 h-40 rounded-xl object-cover border-4 border-blue-500 shadow-lg"
           />
